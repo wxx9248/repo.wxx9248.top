@@ -1,0 +1,18 @@
+#!/bin/bash
+
+set -e
+
+for directory in */; do
+    if [ ! -f "${directory}build" ]; then
+        continue
+    fi
+
+    echo "Executing ${directory}build"
+    "./${directory}build"
+
+    echo "Copying files from ./${directory}staging/"
+    mkdir -p ./staging
+    cp -v -r "./${directory}staging/${directory}" ./staging/
+
+    echo
+done

@@ -1,0 +1,13 @@
+#!/bin/bash
+
+set -e
+
+echo "Staging packages"
+for script in archlinux/package/*; do
+    echo "Executing $script"
+    "./$script"
+    echo
+done
+
+echo "Building repository index"
+python3 archlinux/index/main.py
