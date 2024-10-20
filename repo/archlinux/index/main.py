@@ -4,16 +4,18 @@ import logging
 import os
 import sys
 import typing
+from pathlib import Path
 
 import docker
 from docker.models.containers import Container
 import platform_specific
 
-WORKSPACE_PATH_HOST = "archlinux"
-WORKSPACE_PATH_CONTAINER = "/workspace"
+
+WORKSPACE_PATH_HOST = Path(".")
+WORKSPACE_PATH_CONTAINER = Path("/workspace")
 BUILD_SCRIPT_NAME = "build.sh"
-BUILD_SCRIPT_PATH_HOST = f"{WORKSPACE_PATH_HOST}/{BUILD_SCRIPT_NAME}"
-BUILD_SCRIPT_PATH_CONTAINER = f"{WORKSPACE_PATH_CONTAINER}/{BUILD_SCRIPT_NAME}"
+BUILD_SCRIPT_PATH_HOST = WORKSPACE_PATH_HOST / BUILD_SCRIPT_NAME
+BUILD_SCRIPT_PATH_CONTAINER = WORKSPACE_PATH_CONTAINER / BUILD_SCRIPT_NAME
 
 
 def main(argc: int, argv: typing.List[str]):
@@ -37,13 +39,13 @@ def main(argc: int, argv: typing.List[str]):
         pm_command_generator.install(*dependencies),
 
         """
-        cd staging/archlinux
+        cd staging/
         for arch in */; do
             cd "$arch"
             repo-add wxx9248.db.tar.gz *.pkg*
             cd ..
         done
-        cd ../..
+        cd ../
         """
     ]
 
@@ -59,7 +61,7 @@ def main(argc: int, argv: typing.List[str]):
     client = docker.from_env()
     container: Container = client.containers.run(
         tag,
-        f"sh -e -x ./{BUILD_SCRIPT_NAME}",
+        f"sh -e -x {BUILD_SCRIPT_PATH_HOST}",
         auto_remove=True,
         environment={
             "DEBIAN_FRONTEND": "noninteractive",
@@ -67,12 +69,12 @@ def main(argc: int, argv: typing.List[str]):
         },
         privileged=True,
         volumes={
-            f"{os.getcwd()}/{WORKSPACE_PATH_HOST}": {
-                "bind": WORKSPACE_PATH_CONTAINER,
+            str(WORKSPACE_PATH_HOST.absolute()): {
+                "bind": str(WORKSPACE_PATH_CONTAINER),
                 "mode": "rw"
             }
         },
-        working_dir=WORKSPACE_PATH_CONTAINER,
+        working_dir=str(WORKSPACE_PATH_CONTAINER),
         detach=True
     )
     console = container.attach(stdout=True, stderr=True, stream=True, logs=True)

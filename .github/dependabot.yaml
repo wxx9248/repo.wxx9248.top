@@ -1,7 +1,13 @@
 version: 2
 updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    commit-message:
+      prefix: "Dependency Updates"
   - package-ecosystem: "pip"
-    directory: "/archlinux/index/"
+    directory: "/repo/archlinux/index/"
     schedule:
       interval: "daily"
     commit-message:
