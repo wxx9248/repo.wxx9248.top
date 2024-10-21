@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Redirect</title>
+    <script>
+      const { pathname, search, hash } = new URL(location.href);
+      location.replace(
+        `/?path=${encodeURIComponent(pathname + search + hash)}`
+      );
+    </script>
+  </head>
+</html>
