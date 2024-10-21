@@ -15,7 +15,7 @@ for directory in ./repo/*/; do
 
     echo "Copying files from ${directory}staging/"
     mkdir -p "./staging/$repo_name/"
-    cp -v -r "${directory}staging/" "./staging/$repo_name/"
+    cp -v -r "${directory}staging/." "./staging/$repo_name/"
 
     echo
 done
