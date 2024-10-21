@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-import requests
+import urllib.request
+import urllib.parse
+import json
 import os
 from pathlib import Path
 from dataclasses import dataclass
@@ -9,28 +11,30 @@ staging_directory_path = Path("staging/x86_64")
 
 
 @dataclass
-class Downlodable:
+class Downloadable:
     name: str
     url: str
 
 
 def fetch_downloadables():
-    response = requests.get(
+    req = urllib.request.Request(
         release_endpoint,
         headers={
             "Accept": "application/vnd.github+json",
             "X-GitHub-Api-Version": "2022-11-28"
         }
     )
-    return map(lambda asset: Downlodable(asset["name"], asset["browser_download_url"]), response.json()["assets"])
+    with urllib.request.urlopen(req) as response:
+        data = json.loads(response.read().decode())
+        return map(lambda asset: Downloadable(asset["name"], asset["browser_download_url"]), data["assets"])
 
 
-def download(downloadable: Downlodable, path: Path):
+def download(downloadable: Downloadable, path: Path):
     target_file_path = path / downloadable.name
     print(f"[i] Downloading {downloadable.name} to {target_file_path}")
     with open(target_file_path, "wb") as target_file:
-        response = requests.get(downloadable.url, allow_redirects=True)
-        target_file.write(response.content)
+        with urllib.request.urlopen(downloadable.url) as response:
+            target_file.write(response.read())
 
 
 def main():
