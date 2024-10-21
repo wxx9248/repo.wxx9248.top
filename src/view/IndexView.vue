@@ -68,7 +68,7 @@ watch(
 const pathSegments = computed(() =>
   rawPath.value.split("/").filter((v) => v !== "")
 );
-function generatePathFromSegment(pathSegments) {
+function generatePathFromSegment(pathSegments: string[]) {
   return pathSegments.length !== 0 ? `/${pathSegments.join("/")}/` : "/";
 }
 
@@ -96,7 +96,12 @@ const headers = [
 ];
 
 const rootNode = index as Folder;
-const items = ref([]);
+const items = ref<{
+  type: "folder" | "file",
+  name: string,
+  size: string | number,
+  link: string
+}[]>([]);
 watch(
   pathSegments,
   (newPathSegments) => {
@@ -123,8 +128,9 @@ watch(
       for (const [name, { size }] of Object.entries(currentNode.fileEntries)) {
         items.value.push({ type: "file", name: name, size: size, link: name });
       }
-    } catch ({}) {
-      console.error(`Invalid path: ${path.value}`);
+    } catch (error) {
+      console.error(`Invalid path: ${path.value}. Refer to the error below for details:`);
+      console.error(error);
     }
   },
   { immediate: true }
