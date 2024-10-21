@@ -12,5 +12,5 @@ for script in ./package/*; do
 done
 
 echo "Building repository index"
-pip3 install ./index/requirements.txt
+pip3 install -r ./index/requirements.txt
 python3 ./index/main.py
