@@ -30,7 +30,7 @@
     "@vue/eslint-config-typescript": "^14.1.1",
     "commander": "^12.1.0",
     "eslint": "^9.13.0",
-    "eslint-plugin-vue": "^9.29.0",
+    "eslint-plugin-vue": "^9.29.1",
     "globals": "^15.11.0",
     "prettier": "^3.3.3",
     "sass": "1.80.3",
