@@ -96,12 +96,14 @@ const headers = [
 ];
 
 const rootNode = index as Folder;
-const items = ref<{
-  type: "folder" | "file",
-  name: string,
-  size: string | number,
-  link: string
-}[]>([]);
+const items = ref<
+  {
+    type: "folder" | "file";
+    name: string;
+    size: string | number;
+    link: string;
+  }[]
+>([]);
 watch(
   pathSegments,
   (newPathSegments) => {
@@ -129,7 +131,9 @@ watch(
         items.value.push({ type: "file", name: name, size: size, link: name });
       }
     } catch (error) {
-      console.error(`Invalid path: ${path.value}. Refer to the error below for details:`);
+      console.error(
+        `Invalid path: ${path.value}. Refer to the error below for details:`
+      );
       console.error(error);
     }
   },

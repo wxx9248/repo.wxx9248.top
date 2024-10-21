@@ -4,47 +4,7 @@ on:
   workflow_dispatch:
 jobs:
   build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check-out repository
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive
-      - name: Setup node.js
-        uses: actions/setup-node@v4.0.4
-        with:
-          node-version: 20
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-          cache: pip
-      - name: Setup pnpm
-        run: |
-          npm install --global pnpm
-      - name: Fetching node modules
-        run: |
-          pnpm install
-      - name: Checking code style
-        run: |
-          pnpm check-format
-          pnpm lint
-      - name: Executing build script
-        run: |
-          ./build
-      - name: Indexing repository
-        run: |
-          pnpm index
-      - name: Building index page
-        run: |
-          pnpm build
-      - name: Building artifact
-        run: |
-          cp -r ./staging/* ./dist/
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: "./dist"
+    uses: ./.github/workflows/pull-request-check.yaml
   publish:
     runs-on: ubuntu-latest
     needs: build
