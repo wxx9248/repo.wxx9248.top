@@ -1,0 +1,16 @@
+#!/bin/bash
+
+set -e
+
+cd "$(dirname "$0")"
+
+echo "Staging packages"
+for script in ./package/*; do
+    echo "Executing $script"
+    "$script"
+    echo
+done
+
+echo "Building repository index"
+echo pip3 install ./index/requirements.txt
+python3 ./index/main.py

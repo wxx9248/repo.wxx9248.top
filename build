@@ -2,17 +2,20 @@
 
 set -e
 
-for directory in */; do
+for directory in ./repo/*/; do
     if [ ! -f "${directory}build" ]; then
+        echo "No build script found under $directory, skipping"
         continue
     fi
 
-    echo "Executing ${directory}build"
-    "./${directory}build"
+    repo_name=$(basename "$directory")
 
-    echo "Copying files from ./${directory}staging/"
-    mkdir -p ./staging
-    cp -v -r "./${directory}staging/${directory}" ./staging/
+    echo "Executing ${directory}build"
+    "${directory}build"
+
+    echo "Copying files from ${directory}staging/"
+    mkdir -p "./staging/$repo_name/"
+    cp -v -r "${directory}staging/" "./staging/$repo_name/"
 
     echo
 done
