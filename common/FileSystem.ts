@@ -1,12 +1,8 @@
-export interface Node {
-  name: string;
-}
-
-export interface File extends Node {
+export interface File {
   size: number;
 }
 
-export interface Folder extends Node {
-  folderEntries: Folder[];
-  fileEntries: File[];
+export interface Folder {
+  folderEntries: Record<string, Folder>;
+  fileEntries: Record<string, File>;
 }

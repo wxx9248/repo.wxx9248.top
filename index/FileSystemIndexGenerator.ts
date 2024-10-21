@@ -1,40 +1,35 @@
 import { Command } from "commander";
-import type { Folder, File } from "common/FileSystem";
+import type { File, Folder } from "common/FileSystem";
 import { readdir, stat, writeFile } from "fs/promises";
-import { resolve, basename } from "path";
+import { resolve } from "path";
 
 async function walk(folder: string): Promise<Folder> {
-  const folderEntries: Folder[] = [];
-  const fileEntries: File[] = [];
+  const folderEntries: Record<string, Folder> = {};
+  const fileEntries: Record<string, File> = {};
 
   const entries = await readdir(folder, { withFileTypes: true });
-
   for (const entry of entries) {
     const entryPath = resolve(folder, entry.name);
 
     if (entry.isDirectory()) {
-      const subfolder = await walk(entryPath);
-      folderEntries.push(subfolder);
+      folderEntries[entry.name] = await walk(entryPath);
     } else if (entry.isFile()) {
       const fileStats = await stat(entryPath);
-      fileEntries.push({
-        name: entry.name,
+      fileEntries[entry.name] = {
         size: fileStats.size
-      });
+      };
     }
   }
 
   return {
-    name: basename(folder),
     folderEntries,
     fileEntries
   };
 }
 
 async function main(folderPath: string, outputPath: string): Promise<void> {
-  const folder = await walk(folderPath);
-  folder.name = "/";
-  const content = `export const index = ${JSON.stringify(folder, null, 2)}`;
+  const root = await walk(folderPath);
+  const content = `export const index = ${JSON.stringify(root, null, 2)}`;
   await writeFile(outputPath, content, { encoding: "utf8" });
 }
 

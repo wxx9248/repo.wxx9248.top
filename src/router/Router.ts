@@ -1,11 +1,12 @@
-import { createMemoryHistory, createRouter, createWebHashHistory } from "vue-router";
 import IndexView from "@/view/IndexView.vue";
+import { createRouter, createWebHistory } from "vue-router";
 
 const routes = [
-  { path: '/:pathMatch(.*)', component: IndexView }
-]
+  { path: "/", component: IndexView },
+  { path: "/:pathMatch(.*\\/)", component: IndexView }
+];
 
 export const router = createRouter({
-  history: createWebHashHistory(),
-  routes,
-})
+  history: createWebHistory(),
+  routes
+});
