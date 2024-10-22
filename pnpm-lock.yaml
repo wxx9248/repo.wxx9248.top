@@ -49,8 +49,8 @@ importers:
         specifier: ^10.0.0
         version: 10.0.0(eslint@9.13.0)(prettier@3.3.3)
       '@vue/eslint-config-typescript':
-        specifier: ^14.1.1
-        version: 14.1.1(@typescript-eslint/parser@8.10.0(eslint@9.13.0)(typescript@5.6.3))(eslint-plugin-vue@9.29.1(eslint@9.13.0))(eslint@9.13.0)(typescript@5.6.3)
+        specifier: ^14.1.2
+        version: 14.1.2(@typescript-eslint/parser@8.10.0(eslint@9.13.0)(typescript@5.6.3))(eslint-plugin-vue@9.29.1(eslint@9.13.0))(eslint@9.13.0)(typescript@5.6.3)
       commander:
         specifier: ^12.1.0
         version: 12.1.0
@@ -957,8 +957,8 @@ packages:
       eslint: '>= 8.21.0'
       prettier: '>= 3.0.0'
 
-  '@vue/eslint-config-typescript@14.1.1':
-    resolution: {integrity: sha512-zw6q8pXUuFHfdZsdKYr344giBRhnq6WmWSO2abFHajxR8wDX2p2hkj0/Mf6W2phTkerU4b8WF2jgq2Z/c+PdMA==}
+  '@vue/eslint-config-typescript@14.1.2':
+    resolution: {integrity: sha512-iMxULt1ZNvJA0+Dw+JaoVdbi7Vo4wpEu0VNVa1SUprtY07F150wx4MUGOpln7QJjNo4f4DMxWFTlMbRVUdYmYg==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
     peerDependencies:
       eslint: ^9.10.0
@@ -2817,7 +2817,7 @@ snapshots:
     transitivePeerDependencies:
       - '@types/eslint'
 
-  '@vue/eslint-config-typescript@14.1.1(@typescript-eslint/parser@8.10.0(eslint@9.13.0)(typescript@5.6.3))(eslint-plugin-vue@9.29.1(eslint@9.13.0))(eslint@9.13.0)(typescript@5.6.3)':
+  '@vue/eslint-config-typescript@14.1.2(@typescript-eslint/parser@8.10.0(eslint@9.13.0)(typescript@5.6.3))(eslint-plugin-vue@9.29.1(eslint@9.13.0))(eslint@9.13.0)(typescript@5.6.3)':
     dependencies:
       '@typescript-eslint/eslint-plugin': 8.10.0(@typescript-eslint/parser@8.10.0(eslint@9.13.0)(typescript@5.6.3))(eslint@9.13.0)(typescript@5.6.3)
       eslint: 9.13.0
