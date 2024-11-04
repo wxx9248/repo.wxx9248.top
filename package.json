@@ -21,7 +21,7 @@
   "devDependencies": {
     "@babel/types": "^7.26.0",
     "@eslint/eslintrc": "^3.1.0",
-    "@eslint/js": "^9.13.0",
+    "@eslint/js": "^9.14.0",
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
     "@tsconfig/node20": "^20.1.4",
     "@types/node": "^22.8.6",
