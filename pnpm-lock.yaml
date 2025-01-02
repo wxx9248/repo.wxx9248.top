@@ -34,8 +34,8 @@ importers:
         specifier: ^9.17.0
         version: 9.17.0
       '@trivago/prettier-plugin-sort-imports':
-        specifier: ^5.2.0
-        version: 5.2.0(@vue/compiler-sfc@3.5.13)(prettier@3.4.2)
+        specifier: ^5.2.1
+        version: 5.2.1(@vue/compiler-sfc@3.5.13)(prettier@3.4.2)
       '@tsconfig/node20':
         specifier: ^20.1.4
         version: 20.1.4
@@ -184,11 +184,6 @@ packages:
   '@babel/helpers@7.25.7':
     resolution: {integrity: sha512-Sv6pASx7Esm38KQpF/U/OXLwPPrdGHNKoeblRxgZRLXnAtnkEe4ptJPDtAZM7fBLadbc1Q07kQpSiGQ0Jg6tRA==}
     engines: {node: '>=6.9.0'}
-
-  '@babel/parser@7.25.8':
-    resolution: {integrity: sha512-HcttkxzdPucv3nNFmfOOMfFf64KgdJVqm1KaCm25dPGMLElo9nsLvXeJECQg8UzPuBGLyTSA0ZzqCtDSzKTEoQ==}
-    engines: {node: '>=6.0.0'}
-    hasBin: true
 
   '@babel/parser@7.26.3':
     resolution: {integrity: sha512-WJ/CvmY8Mea8iDXo6a7RK2wbmJITT5fN3BEkRuFlxVyNx8jOKIIhmC4fSkTcPcf8JyavbBwIe6OpiCOBXt/IcA==}
@@ -817,14 +812,14 @@ packages:
     resolution: {integrity: sha512-tlqY9xq5ukxTUZBmoOp+m61cqwQD5pHJtFY3Mn8CA8ps6yghLH/Hw8UPdqg4OLmFW3IFlcXnQNmo/dh8HzXYIQ==}
     engines: {node: '>=18'}
 
-  '@trivago/prettier-plugin-sort-imports@5.2.0':
-    resolution: {integrity: sha512-yEIJ7xMKYQwyNRjxSdi4Gs37iszikAjxfky+3hu9bn24u8eHLJNDMAoOTyowp8p6EpSl8IQMdkfBx+WnJTttsw==}
+  '@trivago/prettier-plugin-sort-imports@5.2.1':
+    resolution: {integrity: sha512-NDZndt0fmVThIx/8cExuJHLZagUVzfGCoVrwH9x6aZvwfBdkrDFTYujecek6X2WpG4uUFsVaPg5+aNQPSyjcmw==}
     engines: {node: '>18.12'}
     peerDependencies:
       '@vue/compiler-sfc': 3.x
       prettier: 2.x - 3.x
       prettier-plugin-svelte: 3.x
-      svelte: 4.x
+      svelte: 4.x || 5.x
     peerDependenciesMeta:
       '@vue/compiler-sfc':
         optional: true
@@ -2138,10 +2133,6 @@ snapshots:
       '@babel/template': 7.25.9
       '@babel/types': 7.26.3
 
-  '@babel/parser@7.25.8':
-    dependencies:
-      '@babel/types': 7.26.3
-
   '@babel/parser@7.26.3':
     dependencies:
       '@babel/types': 7.26.3
@@ -2204,7 +2195,7 @@ snapshots:
       '@babel/parser': 7.26.3
       '@babel/template': 7.25.9
       '@babel/types': 7.26.3
-      debug: 4.3.7
+      debug: 4.4.0
       globals: 11.12.0
     transitivePeerDependencies:
       - supports-color
@@ -2573,7 +2564,7 @@ snapshots:
 
   '@sindresorhus/merge-streams@4.0.0': {}
 
-  '@trivago/prettier-plugin-sort-imports@5.2.0(@vue/compiler-sfc@3.5.13)(prettier@3.4.2)':
+  '@trivago/prettier-plugin-sort-imports@5.2.1(@vue/compiler-sfc@3.5.13)(prettier@3.4.2)':
     dependencies:
       '@babel/generator': 7.26.3
       '@babel/parser': 7.26.3
@@ -2723,7 +2714,7 @@ snapshots:
 
   '@vue/compiler-core@3.5.13':
     dependencies:
-      '@babel/parser': 7.25.8
+      '@babel/parser': 7.26.3
       '@vue/shared': 3.5.13
       entities: 4.5.0
       estree-walker: 2.0.2
@@ -2736,7 +2727,7 @@ snapshots:
 
   '@vue/compiler-sfc@3.5.13':
     dependencies:
-      '@babel/parser': 7.25.8
+      '@babel/parser': 7.26.3
       '@vue/compiler-core': 3.5.13
       '@vue/compiler-dom': 3.5.13
       '@vue/compiler-ssr': 3.5.13
