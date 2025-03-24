@@ -37,8 +37,8 @@ importers:
         specifier: ^5.2.2
         version: 5.2.2(@vue/compiler-sfc@3.5.13)(prettier@3.5.3)
       '@tsconfig/node20':
-        specifier: ^20.1.4
-        version: 20.1.4
+        specifier: ^20.1.5
+        version: 20.1.5
       '@types/node':
         specifier: ^22.13.11
         version: 22.13.11
@@ -872,8 +872,8 @@ packages:
       svelte:
         optional: true
 
-  '@tsconfig/node20@20.1.4':
-    resolution: {integrity: sha512-sqgsT69YFeLWf5NtJ4Xq/xAF8p4ZQHlmGW74Nu2tD4+g5fAsposc4ZfaaPixVu4y01BEiDCWLRDCvDM5JOsRxg==}
+  '@tsconfig/node20@20.1.5':
+    resolution: {integrity: sha512-Vm8e3WxDTqMGPU4GATF9keQAIy1Drd7bPwlgzKJnZtoOsTm1tduUTbDjg0W5qERvGuxPI2h9RbMufH0YdfBylA==}
 
   '@types/estree@1.0.6':
     resolution: {integrity: sha512-AYnb1nQyY49te+VRAVgmzfcgjYS91mY5P0TKUDCLEM+gNnA+3T6rWITXRLYCpahpqSQbN5cE+gHpnPyXjHWxcw==}
@@ -2672,7 +2672,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@tsconfig/node20@20.1.4': {}
+  '@tsconfig/node20@20.1.5': {}
 
   '@types/estree@1.0.6': {}
 
