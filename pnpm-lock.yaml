@@ -50,7 +50,7 @@ importers:
         version: 10.2.0(eslint@9.39.1)(prettier@3.6.2)
       '@vue/eslint-config-typescript':
         specifier: ^14.6.0
-        version: 14.6.0(eslint-plugin-vue@10.6.0(@typescript-eslint/parser@8.35.1(eslint@9.39.1)(typescript@5.8.3))(eslint@9.39.1)(vue-eslint-parser@10.2.0(eslint@9.39.1)))(eslint@9.39.1)(typescript@5.8.3)
+        version: 14.6.0(eslint-plugin-vue@10.6.1(@typescript-eslint/parser@8.35.1(eslint@9.39.1)(typescript@5.8.3))(eslint@9.39.1)(vue-eslint-parser@10.2.0(eslint@9.39.1)))(eslint@9.39.1)(typescript@5.8.3)
       commander:
         specifier: ^14.0.2
         version: 14.0.2
@@ -58,8 +58,8 @@ importers:
         specifier: ^9.39.1
         version: 9.39.1
       eslint-plugin-vue:
-        specifier: ^10.6.0
-        version: 10.6.0(@typescript-eslint/parser@8.35.1(eslint@9.39.1)(typescript@5.8.3))(eslint@9.39.1)(vue-eslint-parser@10.2.0(eslint@9.39.1))
+        specifier: ^10.6.1
+        version: 10.6.1(@typescript-eslint/parser@8.35.1(eslint@9.39.1)(typescript@5.8.3))(eslint@9.39.1)(vue-eslint-parser@10.2.0(eslint@9.39.1))
       globals:
         specifier: ^16.5.0
         version: 16.5.0
@@ -1244,8 +1244,8 @@ packages:
       eslint-config-prettier:
         optional: true
 
-  eslint-plugin-vue@10.6.0:
-    resolution: {integrity: sha512-TsoFluWxOpsJlE/l2jJygLQLWBPJ3Qdkesv7tBIunICbTcG0dS1/NBw/Ol4tJw5kHWlAVds4lUmC29/vlPUcEQ==}
+  eslint-plugin-vue@10.6.1:
+    resolution: {integrity: sha512-OMvDAFbewocYrJamF1EoSWoT4xa7/QRb/yYouEZMiroTE+WRmFUreR+kAFQHqM45W3kg5oljVfUYfH9HEwX1Bg==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
     peerDependencies:
       '@stylistic/eslint-plugin': ^2.0.0 || ^3.0.0 || ^4.0.0 || ^5.0.0
@@ -1946,6 +1946,7 @@ packages:
 
   vuetify@3.11.1:
     resolution: {integrity: sha512-ACox0dnEdnOqiRtlvLsVfh4CbVI9vnpftf1g8h7waeSupIrWnqJjerfctZbFWDCroqybbt2AlIJZHF5eQcxbdg==}
+    deprecated: Mistaken republish, no changes since 3.11.0
     peerDependencies:
       typescript: '>=4.7'
       vite-plugin-vuetify: '>=2.1.0'
@@ -2790,11 +2791,11 @@ snapshots:
     transitivePeerDependencies:
       - '@types/eslint'
 
-  '@vue/eslint-config-typescript@14.6.0(eslint-plugin-vue@10.6.0(@typescript-eslint/parser@8.35.1(eslint@9.39.1)(typescript@5.8.3))(eslint@9.39.1)(vue-eslint-parser@10.2.0(eslint@9.39.1)))(eslint@9.39.1)(typescript@5.8.3)':
+  '@vue/eslint-config-typescript@14.6.0(eslint-plugin-vue@10.6.1(@typescript-eslint/parser@8.35.1(eslint@9.39.1)(typescript@5.8.3))(eslint@9.39.1)(vue-eslint-parser@10.2.0(eslint@9.39.1)))(eslint@9.39.1)(typescript@5.8.3)':
     dependencies:
       '@typescript-eslint/utils': 8.35.1(eslint@9.39.1)(typescript@5.8.3)
       eslint: 9.39.1
-      eslint-plugin-vue: 10.6.0(@typescript-eslint/parser@8.35.1(eslint@9.39.1)(typescript@5.8.3))(eslint@9.39.1)(vue-eslint-parser@10.2.0(eslint@9.39.1))
+      eslint-plugin-vue: 10.6.1(@typescript-eslint/parser@8.35.1(eslint@9.39.1)(typescript@5.8.3))(eslint@9.39.1)(vue-eslint-parser@10.2.0(eslint@9.39.1))
       fast-glob: 3.3.3
       typescript-eslint: 8.35.1(eslint@9.39.1)(typescript@5.8.3)
       vue-eslint-parser: 10.2.0(eslint@9.39.1)
@@ -3057,7 +3058,7 @@ snapshots:
     optionalDependencies:
       eslint-config-prettier: 10.0.1(eslint@9.39.1)
 
-  eslint-plugin-vue@10.6.0(@typescript-eslint/parser@8.35.1(eslint@9.39.1)(typescript@5.8.3))(eslint@9.39.1)(vue-eslint-parser@10.2.0(eslint@9.39.1)):
+  eslint-plugin-vue@10.6.1(@typescript-eslint/parser@8.35.1(eslint@9.39.1)(typescript@5.8.3))(eslint@9.39.1)(vue-eslint-parser@10.2.0(eslint@9.39.1)):
     dependencies:
       '@eslint-community/eslint-utils': 4.9.0(eslint@9.39.1)
       eslint: 9.39.1
