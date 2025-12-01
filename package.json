@@ -34,7 +34,7 @@
     "globals": "^16.5.0",
     "prettier": "^3.7.3",
     "sass": "1.94.2",
-    "tsx": "^4.20.6",
+    "tsx": "^4.21.0",
     "typescript": "^5.8.3",
     "unplugin-fonts": "^1.4.0",
     "unplugin-vue-components": "^30.0.0",
