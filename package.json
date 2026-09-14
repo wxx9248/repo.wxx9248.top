@@ -19,7 +19,7 @@
     "vuetify": "^4.2.0"
   },
   "devDependencies": {
-    "@babel/types": "^8.0.4",
+    "@babel/types": "^8.0.5",
     "@eslint/eslintrc": "^3.3.7",
     "@eslint/js": "^10.0.1",
     "@trivago/prettier-plugin-sort-imports": "^6.0.2",
