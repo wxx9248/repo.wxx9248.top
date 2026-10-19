@@ -1,0 +1,62 @@
+#!/bin/bash
+
+# An unsigned apt repository, so clients need [trusted=yes]:
+#
+#   deb [trusted=yes] https://repo.wxx9248.top/debian trixie main
+#
+# The index is written with dpkg-scanpackages and a few lines of shell rather than
+# inside a Debian container, so nothing here needs root.
+
+set -e
+
+cd "$(dirname "$0")"
+
+suite=trixie
+component=main
+
+if ! command -v dpkg-scanpackages >/dev/null; then
+    echo "dpkg-scanpackages not found; install dpkg-dev" >&2
+    exit 1
+fi
+
+# Only the packages fetched by this run belong in the index.
+rm -rf ./staging
+
+echo "Staging packages"
+for script in ./package/*; do
+    echo "Executing $script"
+    "$script"
+    echo
+done
+
+echo "Building repository index"
+cd ./staging
+
+architectures=$(find pool -name '*.deb' | sed -E 's/.*_([^_]+)\.deb$/\1/' | grep -vx all | sort -u)
+if [ -z "$architectures" ]; then
+    echo "No architecture-specific package was staged" >&2
+    exit 1
+fi
+
+for arch in $architectures; do
+    directory="dists/$suite/$component/binary-$arch"
+    mkdir -p "$directory"
+    dpkg-scanpackages --arch "$arch" pool >"$directory/Packages"
+    gzip -9 -n -k "$directory/Packages"
+done
+
+cd "dists/$suite"
+{
+    echo "Origin: wxx9248"
+    echo "Label: wxx9248"
+    echo "Suite: $suite"
+    echo "Codename: $suite"
+    echo "Date: $(LC_ALL=C date -u '+%a, %d %b %Y %H:%M:%S UTC')"
+    echo "Architectures:" $architectures
+    echo "Components: $component"
+    echo "SHA256:"
+    find "$component" -type f -name 'Packages*' | sort | while read -r file; do
+        echo " $(sha256sum "$file" | cut -d ' ' -f 1) $(wc -c <"$file") $file"
+    done
+} >Release
+cat Release
