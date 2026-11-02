@@ -2,6 +2,8 @@ name: Pull Request Check
 on:
   pull_request:
   workflow_call:
+permissions:
+  contents: read
 jobs:
   build:
     runs-on: ubuntu-latest

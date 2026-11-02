@@ -2,6 +2,8 @@ name: Build and Publish Repository
 on:
   repository_dispatch:
   workflow_dispatch:
+permissions:
+  contents: read
 jobs:
   build:
     uses: ./.github/workflows/pull-request-check.yaml
