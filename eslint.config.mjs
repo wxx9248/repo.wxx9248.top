@@ -1,51 +1,39 @@
-import skipFormatting from "@vue/eslint-config-prettier/skip-formatting";
-import vueTsEslintConfig from "@vue/eslint-config-typescript";
-import pluginVue from "eslint-plugin-vue";
+import astro from "eslint-plugin-astro";
+import globals from "globals";
+import js from "@eslint/js";
+import prettier from "eslint-config-prettier/flat";
+import tseslint from "typescript-eslint";
+
+const maxNestedCallbacks = 3;
 
 export default [
   {
-    name: "app/files-to-lint",
-    files: ["**/*.{ts,mts,tsx,vue}"]
+    ignores: [
+      "dist/",
+      ".astro/",
+      "staging/",
+      ".superpowers/",
+      "playwright-report/",
+      "test-results/"
+    ]
   },
-
-  {
-    name: "app/files-to-ignore",
-    ignores: ["**/dist/**", "**/dist-ssr/**", "**/coverage/**"]
-  },
-  ...pluginVue.configs["flat/essential"],
-  ...vueTsEslintConfig(),
-  skipFormatting,
+  js.configs.recommended,
+  ...tseslint.configs.recommended,
+  ...astro.configs.recommended,
+  prettier,
   {
     languageOptions: {
       ecmaVersion: "latest",
-      sourceType: "module"
+      globals: { ...globals.browser, ...globals.node }
     },
-
     rules: {
-      "no-duplicate-imports": "error",
-      "no-self-compare": "error",
-      "no-unmodified-loop-condition": "error",
-
-      "accessor-pairs": [
-        "error",
-        {
-          setWithoutGet: true,
-          getWithoutSet: true
-        }
-      ],
-
+      "accessor-pairs": ["error", { getWithoutSet: true, setWithoutGet: true }],
       "arrow-body-style": "error",
       "block-scoped-var": "error",
       "camelcase": "error",
+      "capitalized-comments": "error",
       "class-methods-use-this": "error",
-
-      "consistent-return": [
-        "error",
-        {
-          treatUndefinedAsUnspecified: true
-        }
-      ],
-
+      "consistent-return": ["error", { treatUndefinedAsUnspecified: true }],
       "consistent-this": "error",
       "curly": "error",
       "default-case-last": "error",
@@ -55,14 +43,18 @@ export default [
       "grouped-accessor-pairs": "error",
       "guard-for-in": "error",
       "init-declarations": "error",
+      "line-comment-position": ["error", { position: "above" }],
       "max-depth": "error",
-      "max-nested-callbacks": ["error", 3],
+      "max-nested-callbacks": ["error", maxNestedCallbacks],
+      "new-cap": "error",
       "no-array-constructor": "error",
       "no-case-declarations": "error",
       "no-delete-var": "error",
       "no-div-regex": "error",
+      "no-duplicate-imports": "error",
       "no-else-return": "error",
       "no-empty": "error",
+      "no-empty-function": "error",
       "no-empty-static-block": "error",
       "no-eval": "error",
       "no-extra-bind": "error",
@@ -72,13 +64,28 @@ export default [
       "no-implicit-globals": "error",
       "no-implied-eval": "error",
       "no-invalid-this": "error",
+      "no-magic-numbers": "error",
       "no-nested-ternary": "error",
       "no-nonoctal-decimal-escape": "error",
       "no-object-constructor": "error",
       "no-redeclare": "error",
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              message: "Import from src/ with @/ instead.",
+              regex: "^\\.\\.(/|$)"
+            }
+          ]
+        }
+      ],
       "no-return-assign": "error",
       "no-script-url": "error",
+      "no-self-compare": "error",
+      "no-undefined": "error",
       "no-underscore-dangle": "error",
+      "no-unmodified-loop-condition": "error",
       "no-unneeded-ternary": "error",
       "no-unused-expressions": "error",
       "no-unused-labels": "error",
@@ -91,6 +98,7 @@ export default [
       "no-useless-rename": "error",
       "no-useless-return": "error",
       "no-var": "error",
+      "no-void": "error",
       "no-with": "error",
       "prefer-arrow-callback": "error",
       "prefer-const": "error",
@@ -103,17 +111,16 @@ export default [
       "prefer-spread": "error",
       "prefer-template": "error",
       "require-unicode-regexp": "error",
+      "sort-imports": "error",
+      "sort-keys": "error",
       "symbol-description": "error",
-      "vars-on-top": "error",
-
-      "line-comment-position": [
-        "error",
-        {
-          position: "above"
-        }
-      ],
-
-      "unicode-bom": ["error", "never"]
+      "unicode-bom": ["error", "never"],
+      "vars-on-top": "error"
     }
+  },
+  {
+    // Tests spell out literal expectations and nest describe/it blocks
+    files: ["tests/**"],
+    rules: { "max-nested-callbacks": "off", "no-magic-numbers": "off" }
   }
 ];
