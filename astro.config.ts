@@ -1,8 +1,9 @@
 import { defineConfig } from "astro/config";
+import { site } from "@/config/site";
 
 export default defineConfig({
   compressHTML: true,
-  site: "https://repo.wxx9248.top",
+  site: site.url,
   trailingSlash: "always",
   vite: {
     css: {
