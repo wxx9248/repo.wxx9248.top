@@ -1,0 +1,1 @@
+Notes with a non-ASCII name and a space.

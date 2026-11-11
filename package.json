@@ -13,7 +13,7 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "pnpm lint && pnpm typecheck && astro build",
+    "build": "pnpm lint && pnpm typecheck && astro build && tsx scripts/assemble.ts",
     "preview": "astro preview",
     "stage": "tsx scripts/stage.ts",
     "lint": "eslint .",
