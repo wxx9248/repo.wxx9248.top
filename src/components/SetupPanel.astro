@@ -1,0 +1,115 @@
+---
+import { setupBlocks, setupNote } from "@/lib/setup/snippets";
+import Panel from "./Panel.astro";
+import type { Repo } from "@/config/repos";
+import { site } from "@/config/site";
+
+interface Props {
+  name: string;
+  repo: Repo;
+}
+
+const { name, repo } = Astro.props;
+const blocks = setupBlocks(name, repo, site.url);
+---
+
+<Panel id="setup" title="setup">
+  <div class="blocks">
+    {blocks.map(({ caption, code }) => (
+      <div class="block">
+        <p class="caption">{caption}</p>
+        <div class="code">
+          <pre><code>{code}</code></pre>
+          <button
+            type="button"
+            class="button copy"
+            data-copy={code}
+            aria-label={`Copy: ${caption}`}
+          >
+            <svg
+              aria-hidden="true"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect x="9" y="9" width="12" height="12" rx="2"></rect>
+              <path d="M5 15V5a2 2 0 0 1 2-2h10"></path>
+            </svg>
+            copy
+          </button>
+        </div>
+      </div>
+    ))}
+  </div>
+  <p class="panel-note">{setupNote(repo)}</p>
+</Panel>
+
+<script>
+  import { bindCopyButtons } from "@/scripts/copy";
+
+  bindCopyButtons();
+</script>
+
+<style>
+  @import "../styles/media.css";
+
+  .blocks {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .caption {
+    margin-bottom: var(--space-2);
+    color: var(--color-text-muted);
+    font-size: var(--text-small);
+  }
+
+  /* The copy button sits under the code on a phone and beside it when wide */
+  .code {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    align-items: flex-start;
+    padding: 10px 14px;
+    border: var(--rule);
+    border-radius: var(--radius);
+    background: var(--color-bg-sunken);
+  }
+
+  @media (--tablet-up) {
+    .code {
+      flex-direction: row;
+      justify-content: space-between;
+    }
+  }
+
+  pre {
+    min-width: 0;
+    margin: 0;
+    /* Keep the snippet's line breaks, but wrap a long line rather than scroll */
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  code {
+    color: var(--color-text-code);
+  }
+
+  /* Copying needs JavaScript, so no-script visitors never see the buttons */
+  .copy {
+    display: none;
+    flex: none;
+    min-height: 32px;
+    font-size: var(--text-small);
+  }
+
+  :global(html.js) .copy {
+    display: inline-flex;
+  }
+</style>

@@ -1,0 +1,116 @@
+---
+import ThemeToggle from "./ThemeToggle.astro";
+import { site } from "@/config/site";
+
+interface Props {
+  summary: string;
+}
+
+const { summary } = Astro.props;
+---
+
+<footer class="status-bar">
+  <div class="mode">
+    <span class="badge">NORMAL</span>
+    <span class="summary" data-summary>
+      {summary}
+    </span>
+    <p class="message" data-message role="status" aria-live="polite"></p>
+  </div>
+  <div class="controls">
+    <span class="label">{site.host}</span>
+    <ThemeToggle class="toggle" />
+  </div>
+</footer>
+
+<style>
+  @import "../styles/media.css";
+
+  .status-bar {
+    position: fixed;
+    inset: auto 0 0;
+    z-index: var(--z-statusbar);
+    display: flex;
+    gap: var(--space-2);
+    align-items: stretch;
+    justify-content: space-between;
+    min-height: var(--statusbar-height);
+    padding-bottom: env(safe-area-inset-bottom);
+    border-top: 1px solid var(--color-border-default);
+    background: var(--color-bg-surface);
+    font-size: var(--text-small);
+    white-space: nowrap;
+  }
+
+  .mode {
+    display: flex;
+    gap: var(--space-3);
+    align-items: center;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .badge {
+    display: flex;
+    align-self: stretch;
+    align-items: center;
+    padding: 0 var(--space-3);
+    background: var(--color-action-primary);
+    color: var(--color-text-on-primary);
+    font-weight: 700;
+  }
+
+  .summary,
+  .message {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .summary {
+    flex: none;
+    color: var(--color-text-muted);
+  }
+
+  .message {
+    color: var(--color-text-highlight);
+  }
+
+  .controls {
+    display: flex;
+    gap: var(--space-1);
+    align-items: center;
+    padding-right: var(--space-2);
+  }
+
+  .label {
+    display: none;
+    color: var(--color-text-secondary);
+  }
+
+  .toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: var(--control-min);
+    min-height: 36px;
+    margin-left: var(--space-1);
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--radius);
+    background: transparent;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+  }
+
+  @media (hover: hover) {
+    .toggle:hover {
+      background: var(--color-hover-bg);
+    }
+  }
+
+  @media (--tablet-up) {
+    .label {
+      display: block;
+    }
+  }
+</style>

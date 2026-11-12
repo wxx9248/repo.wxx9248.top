@@ -1,0 +1,235 @@
+---
+import type { Folder } from "@/lib/tree/types";
+import { entryHref } from "@/lib/links";
+import { formatSize } from "@/lib/format/size";
+import { formatTime } from "@/lib/format/time";
+import { repos } from "@/config/repos";
+import { sortEntries } from "@/lib/tree/sort";
+
+interface Props {
+  folder: Folder;
+  isRoot: boolean;
+}
+
+const { folder, isRoot } = Astro.props;
+const entries = sortEntries(folder.entries);
+// At the root, the second column describes each repository
+const secondColumn = isRoot ? "Description" : "Size";
+---
+
+<div class="listing">
+  <div class="filter">
+    <span class="slash" aria-hidden="true">
+      /
+    </span>
+    <input
+      data-filter
+      type="search"
+      placeholder="filter by name"
+      aria-label="Filter by name"
+    />
+  </div>
+  <div class="scroller">
+    <table data-listing class:list={{ root: isRoot }}>
+      <thead>
+        <tr>
+          <th data-sort-key="name" aria-sort="ascending">
+            Name
+          </th>
+          {isRoot ? (
+            <th>{secondColumn}</th>
+          ) : (
+            <th class="num" data-sort-key="size" aria-sort="none">
+              {secondColumn}
+            </th>
+          )}
+          <th data-sort-key="mtime" aria-sort="none">
+            Modified (UTC)
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {!isRoot && (
+          <tr data-parent class="folder">
+            <td class="name">
+              <a href="../">../</a>
+            </td>
+            <td class="num muted">-</td>
+            <td class="muted">-</td>
+          </tr>
+        )}
+        {entries.map((entry) => {
+          const { iso, text } = formatTime(entry.mtimeMs);
+          const isFolder = entry.kind === "folder";
+          const label = isFolder ? `${entry.name}/` : entry.name;
+          return (
+            <tr
+              data-entry
+              data-kind={entry.kind}
+              data-name={entry.name}
+              data-size={entry.size}
+              data-mtime={entry.mtimeMs}
+              class={entry.kind}
+            >
+              <td class="name">
+                <a href={entryHref(entry)}>{label}</a>
+                {entry.kind === "symlink" && (
+                  <span class="target"> → {entry.target}</span>
+                )}
+              </td>
+              {isRoot ? (
+                <td class="description">{repos[entry.name]?.description}</td>
+              ) : (
+                <td
+                  class="num"
+                  {...(isFolder ? {} : { title: `${entry.size} bytes` })}
+                >
+                  {isFolder ? "-" : formatSize(entry.size)}
+                </td>
+              )}
+              <td class="time">
+                <time datetime={iso}>{text}</time>
+              </td>
+            </tr>
+          );
+        })}
+        <tr data-no-match hidden>
+          <td colspan="3">no matches</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<style>
+  @import "../styles/media.css";
+
+  .listing {
+    min-width: 0;
+  }
+
+  /* Typing a filter needs JavaScript, so no-script visitors never see the box */
+  .filter {
+    display: none;
+    gap: var(--space-2);
+    align-items: center;
+    max-width: 26rem;
+    margin-bottom: var(--space-4);
+    padding: 0 10px;
+    border: 1px solid var(--color-border-input);
+    border-radius: var(--radius);
+  }
+
+  :global(html.js) .filter {
+    display: flex;
+  }
+
+  .slash {
+    color: var(--color-accent);
+  }
+
+  input {
+    flex: 1;
+    min-width: 0;
+    min-height: var(--control-min);
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+
+  input::placeholder {
+    color: var(--color-text-placeholder);
+  }
+
+  /* The outline goes on the box, which holds the input */
+  input:focus-visible {
+    outline: 0;
+  }
+
+  .filter:focus-within {
+    outline: var(--focus-ring);
+    outline-offset: var(--focus-offset);
+  }
+
+  /* A last resort: a very long name scrolls here rather than the page */
+  .scroller {
+    overflow-x: auto;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th {
+    padding: var(--space-1) var(--space-3) var(--space-2) 0;
+    border-bottom: var(--rule);
+    color: var(--color-text-muted);
+    font-size: var(--text-small);
+    font-weight: 500;
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 3px var(--space-3) 3px 0;
+    vertical-align: top;
+  }
+
+  th.num,
+  td.num {
+    text-align: right;
+  }
+
+  th:last-child,
+  td:last-child {
+    padding-right: 0;
+  }
+
+  /* The name column takes the slack; a long name wraps instead of widening the table */
+  td.name {
+    width: 100%;
+    overflow-wrap: anywhere;
+  }
+
+  td.num {
+    white-space: nowrap;
+  }
+
+  /* The date and the time may wrap onto two lines on a phone */
+  @media (--tablet-up) {
+    td.time {
+      white-space: nowrap;
+    }
+  }
+
+  /* At the root the description takes the slack, and the names stay whole */
+  td.description {
+    width: 100%;
+    color: var(--color-text-secondary);
+  }
+
+  .root td.name {
+    width: auto;
+    overflow-wrap: normal;
+    white-space: nowrap;
+  }
+
+  .folder a {
+    color: var(--color-terminal-blue);
+    font-weight: 700;
+  }
+
+  .symlink a {
+    color: var(--color-terminal-cyan);
+  }
+
+  .target,
+  .muted {
+    color: var(--color-text-muted);
+  }
+
+  td[colspan] {
+    color: var(--color-text-muted);
+  }
+</style>
