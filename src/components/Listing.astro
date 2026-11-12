@@ -101,6 +101,15 @@ const secondColumn = isRoot ? "Description" : "Size";
   </div>
 </div>
 
+<script>
+  import { bindListing } from "@/scripts/listing";
+
+  const table = document.querySelector<HTMLTableElement>("table[data-listing]");
+  if (table !== null) {
+    bindListing(table);
+  }
+</script>
+
 <style>
   @import "../styles/media.css";
 
@@ -174,6 +183,31 @@ const secondColumn = isRoot ? "Description" : "Size";
   td {
     padding: 3px var(--space-3) 3px 0;
     vertical-align: top;
+  }
+
+  /* The buttons are added by the script, so Astro's scoping can't reach them */
+  th :global(button) {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    font-weight: inherit;
+    white-space: inherit;
+  }
+
+  th[aria-sort="ascending"] :global(button)::after {
+    content: " ↑";
+  }
+
+  th[aria-sort="descending"] :global(button)::after {
+    content: " ↓";
+  }
+
+  @media (hover: hover) {
+    th :global(button):hover {
+      color: var(--color-text-highlight);
+    }
   }
 
   th.num,
