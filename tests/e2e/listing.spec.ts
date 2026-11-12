@@ -64,7 +64,9 @@ test("Esc clears the filter and restores the summary", async ({ page }) => {
   const input = page.locator("input[data-filter]");
   await input.fill("HEADERS");
   await expect(summary).toHaveText(`1 of ${entryCount}`);
+  await expect(page.locator("[data-message]")).toHaveText(`1 of ${entryCount}`);
   await input.press("Escape");
+  await expect(page.locator("[data-message]")).toHaveText("");
   await expect(input).toHaveValue("");
   await expect(visibleRows(page)).toHaveCount(entryCount);
   await expect(page.locator("tr[data-no-match]")).toBeHidden();
@@ -138,6 +140,25 @@ test("clicking Modified sorts newest first", async ({ page }) => {
     "aria-sort",
     "none"
   );
+  const times = await page
+    .locator("[data-listing] tr[data-entry]")
+    .evaluateAll((rows) =>
+      rows.map((row) => Number((row as HTMLElement).dataset.mtime))
+    );
+  expect(times).toEqual([...times].sort((a, b) => b - a));
+  expect(new Set(times).size).toBeGreaterThan(1);
+});
+
+test("the Size header button sorts from the keyboard", async ({ page }) => {
+  await page.goto(folderPath);
+  await sortButton(page, "size").focus();
+  await page.keyboard.press("Enter");
+  await expect(page.locator('th[data-sort-key="size"]')).toHaveAttribute(
+    "aria-sort",
+    "descending"
+  );
+  const sizes = await rowSizes(page);
+  expect(sizes).toEqual([...sizes].sort((a, b) => b - a));
 });
 
 test("sorting keeps the active filter applied", async ({ page }) => {

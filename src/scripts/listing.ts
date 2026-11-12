@@ -5,6 +5,7 @@ import {
 } from "@/lib/tree/sort";
 import type { EntryKind } from "@/lib/tree/types";
 import { matchesFilter } from "@/lib/tree/filter";
+import { showMessage } from "@/scripts/message";
 
 interface Row {
   kind: EntryKind;
@@ -126,10 +127,13 @@ function bindFilter(
     }
     const shown = rows.filter(({ row }) => !row.hidden).length;
     noMatchRow.hidden = rows.some(({ row }) => !row.hidden);
+    const filtering = query.trim() !== "";
+    const result = `${shown} of ${rows.length}`;
     if (summary !== null) {
-      summary.textContent =
-        query.trim() === "" ? originalSummary : `${shown} of ${rows.length}`;
+      summary.textContent = filtering ? result : originalSummary;
     }
+    // The summary isn't a live region, so the status message announces the result
+    showMessage(filtering ? result : "");
   });
 
   document.addEventListener("keydown", (event) => {

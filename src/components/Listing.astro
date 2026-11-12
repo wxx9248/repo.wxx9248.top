@@ -196,12 +196,22 @@ const secondColumn = isRoot ? "Description" : "Size";
     white-space: inherit;
   }
 
-  th[aria-sort="ascending"] :global(button)::after {
-    content: " ↑";
+  /* The arrow's width is reserved on every sortable header, so sorting shifts nothing. */
+  /* It sits on the th, so it shows without JavaScript; aria-sort already tells */
+  /* assistive tech the state, hence the empty alternative text. */
+  th[data-sort-key]::after {
+    content: " ▾" / "";
+    visibility: hidden;
   }
 
-  th[aria-sort="descending"] :global(button)::after {
-    content: " ↓";
+  th[aria-sort="ascending"]::after {
+    content: " ▴" / "";
+    visibility: visible;
+  }
+
+  th[aria-sort="descending"]::after {
+    content: " ▾" / "";
+    visibility: visible;
   }
 
   @media (hover: hover) {
