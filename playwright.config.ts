@@ -1,7 +1,7 @@
 import { defineConfig } from "@playwright/test";
 
-// Set E2E_PORT when something else (such as another dev server) holds 4321
-const port = Number(process.env.E2E_PORT ?? "4321");
+// Off Astro's default 4321, so a dev server running there is never reused
+const port = 4323;
 
 const viewports = {
   desktop: { height: 800, width: 1280 },

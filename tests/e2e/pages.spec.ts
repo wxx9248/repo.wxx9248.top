@@ -1,5 +1,7 @@
 import { type Page, test } from "@playwright/test";
 import { blockExternal, expect } from "./helpers";
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import { repos } from "@/config/repos";
 
 const listingLinks = (page: Page): Promise<string[]> =>
@@ -44,16 +46,20 @@ test("every link on every listing page returns 200", async ({
   expect(paths).toContain("/misc/ü notes.txt");
   /*
    * Astro's preview server answers 404 for extensionless files (Release,
-   * Packages) while trailingSlash is "always", and it only decodes the
-   * percent-escapes encodeURI produces (not %3A or %2B). GitHub Pages decodes
-   * both, so fetch the same paths in the form the preview server accepts.
-   * The fixture archives are not real gzip, yet the preview server labels them
-   * Content-Encoding: gzip, so a HEAD request stands in for the download.
+   * Packages) while trailingSlash is "always", and GitHub Pages serves them.
+   * For those, check that the linked path exists in the built site instead.
    */
   const hasExtension = /\.[^/]+$/u;
-  for (const path of paths.filter((file) => hasExtension.test(file))) {
-    const response = await request.head(new URL(encodeURI(path), baseURL).href);
-    expect(response.status(), path).toBe(200);
+  for (const href of files) {
+    const { pathname } = new URL(href);
+    if (hasExtension.test(pathname)) {
+      const response = await request.get(href);
+      expect(response.status(), href).toBe(200);
+    } else {
+      expect(existsSync(join("dist", decodeURIComponent(pathname))), href).toBe(
+        true
+      );
+    }
   }
 });
 

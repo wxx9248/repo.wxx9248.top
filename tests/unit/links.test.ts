@@ -11,10 +11,13 @@ describe("entryHref", () => {
     [
       "file",
       "foo-1:2.0+r1-1-x86_64.pkg.tar.zst",
-      "./foo-1%3A2.0%2Br1-1-x86_64.pkg.tar.zst"
+      "./foo-1:2.0+r1-1-x86_64.pkg.tar.zst"
     ],
     ["file", "a b.txt", "./a%20b.txt"],
     ["file", "ü.txt", "./%C3%BC.txt"],
+    ["file", "100%#1?.txt", "./100%25%231%3F.txt"],
+    ["file", "a/b", "./a%2Fb"],
+    ["file", ":x@y!$&'()*,;=.txt", "./:x@y!$&'()*,;=.txt"],
     ["folder", "x86_64", "./x86_64/"],
     ["symlink", "wxx9248.db", "./wxx9248.db"]
   ] as const)("links %s %s to %s", (kind, name, expected) => {
@@ -33,5 +36,9 @@ describe("folderUrl", () => {
 
   it("encodes each segment", () => {
     expect(folderUrl(["a b"])).toBe("/a%20b/");
+  });
+
+  it("keeps the characters a path segment may hold", () => {
+    expect(folderUrl(["x:1+2"])).toBe("/x:1+2/");
   });
 });
