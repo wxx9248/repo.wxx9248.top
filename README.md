@@ -6,22 +6,22 @@ Package repositories for things wxx9248 builds.
 
 - Node.js — the version in [`.node-version`](.node-version)
 - pnpm — the version in `packageManager` in [`package.json`](package.json)
-- Docker and `dpkg-scanpackages` (from `dpkg-dev`), for `pnpm stage` only
+- Docker and `dpkg-scanpackages` (from `dpkg-dev`), for `pnpm stage:repo` only
 
 ## Commands
 
-| Command         | What it does                                                                       |
-| --------------- | ---------------------------------------------------------------------------------- |
-| `pnpm install`  | Install dependencies                                                               |
-| `pnpm dev`      | Start the dev server                                                               |
-| `pnpm stage`    | Download the latest release assets and build the package databases into `staging/` |
-| `pnpm build`    | Lint, type check, build and assemble `dist/`. Fails if any step fails              |
-| `pnpm preview`  | Serve `dist/`                                                                      |
-| `pnpm test`     | Unit tests (Vitest), then browser tests (Playwright)                               |
-| `pnpm lint:fix` | Fix what ESLint can fix                                                            |
-| `pnpm format`   | Format everything with Prettier                                                    |
+| Command           | What it does                                                                       |
+| ----------------- | ---------------------------------------------------------------------------------- |
+| `pnpm install`    | Install dependencies                                                               |
+| `pnpm dev`        | Start the dev server                                                               |
+| `pnpm stage:repo` | Download the latest release assets and build the package databases into `staging/` |
+| `pnpm build`      | Lint, type check, build and assemble `dist/`. Fails if any step fails              |
+| `pnpm preview`    | Serve `dist/`                                                                      |
+| `pnpm test`       | Unit tests (Vitest), then browser tests (Playwright)                               |
+| `pnpm lint:fix`   | Fix what ESLint can fix                                                            |
+| `pnpm format`     | Format everything with Prettier                                                    |
 
-Set `REPO_DIR=tests/fixtures/repo` to build and test against the sample repository, without running `pnpm stage`.
+Set `REPO_DIR=tests/fixtures/repo` to build and test against the sample repository, without running `pnpm stage:repo`.
 
 ## Adding a package source
 

@@ -34,7 +34,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       # Downloads the release assets and builds the package databases
-      - run: pnpm stage
+      - run: pnpm stage:repo
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

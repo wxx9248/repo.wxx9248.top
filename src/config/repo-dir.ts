@@ -10,7 +10,7 @@ export function resolveRepoDir(
     statSync(dir, { throwIfNoEntry: false })?.isDirectory() ?? false;
   if (!isDirectory) {
     throw new Error(
-      `Repository tree not found at ${dir}. Run "pnpm stage", or set REPO_DIR (for example REPO_DIR=tests/fixtures/repo).`
+      `Repository tree not found at ${dir}. Run "pnpm stage:repo", or set REPO_DIR (for example REPO_DIR=tests/fixtures/repo).`
     );
   }
   return dir;

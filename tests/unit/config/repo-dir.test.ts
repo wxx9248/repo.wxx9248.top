@@ -36,7 +36,7 @@ describe("resolveRepoDir", () => {
   });
 
   it("throws when the folder is missing", () => {
-    expect(() => resolveRepoDir({}, tmp)).toThrow(/pnpm stage.*REPO_DIR/u);
+    expect(() => resolveRepoDir({}, tmp)).toThrow(/pnpm stage:repo.*REPO_DIR/u);
   });
 
   it("throws when REPO_DIR is a file", async () => {

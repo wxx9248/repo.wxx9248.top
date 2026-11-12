@@ -6,7 +6,7 @@ import { stage } from "@/lib/stage/stage";
 try {
   // Both are missing only on Windows, where docker --user has no meaning
   if (!process.getuid || !process.getgid) {
-    throw new Error("pnpm stage needs a POSIX system");
+    throw new Error("pnpm stage:repo needs a POSIX system");
   }
   await stage(resolve("staging"), repos, {
     gid: process.getgid(),
