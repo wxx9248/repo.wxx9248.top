@@ -10,12 +10,16 @@ interface Props {
 }
 
 const { name, repo } = Astro.props;
-const blocks = setupBlocks(name, repo, site.url);
+// A button is named after the first line of its command, not the caption
+const blocks = setupBlocks(name, repo, site.url).map((block) => {
+  const [firstLine = ""] = block.code.split("\n");
+  return { ...block, firstLine };
+});
 ---
 
 <Panel id="setup" title="setup">
   <div class="blocks">
-    {blocks.map(({ caption, code }) => (
+    {blocks.map(({ caption, code, firstLine }) => (
       <div class="block">
         <p class="caption">{caption}</p>
         <div class="code">
@@ -24,7 +28,7 @@ const blocks = setupBlocks(name, repo, site.url);
             type="button"
             class="button copy"
             data-copy={code}
-            aria-label={`Copy: ${caption}`}
+            aria-label={`Copy: ${firstLine}`}
           >
             <svg
               aria-hidden="true"

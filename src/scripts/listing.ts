@@ -120,7 +120,7 @@ function bindFilter(
   const summary = document.querySelector("[data-summary]");
   const originalSummary = summary?.textContent ?? "";
 
-  input.addEventListener("input", () => {
+  const filter = (): void => {
     const query = input.value;
     for (const { name, row } of rows) {
       row.hidden = !matchesFilter(name, query);
@@ -134,7 +134,13 @@ function bindFilter(
     }
     // The summary isn't a live region, so the status message announces the result
     showMessage(filtering ? result : "");
-  });
+  };
+
+  input.addEventListener("input", filter);
+  // A browser that restores the box on back navigation leaves the rows unfiltered
+  if (input.value !== "") {
+    filter();
+  }
 
   document.addEventListener("keydown", (event) => {
     const { target } = event;

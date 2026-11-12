@@ -57,6 +57,28 @@ test("no matches shows the no-matches row", async ({ page }) => {
   await expect(page.locator("[data-summary]")).toHaveText(`0 of ${entryCount}`);
 });
 
+test("a filter value restored by the browser filters the rows", async ({
+  page
+}) => {
+  // Mimics form restoration: the value lands before the deferred script binds
+  await page.addInitScript(() => {
+    const observer = new MutationObserver(() => {
+      const input =
+        document.querySelector<HTMLInputElement>("input[data-filter]");
+      if (input !== null) {
+        input.value = "HEADERS";
+        observer.disconnect();
+      }
+    });
+    observer.observe(document, { childList: true, subtree: true });
+  });
+  await page.goto(folderPath);
+  await expect(page.locator("input[data-filter]")).toHaveValue("HEADERS");
+  await expect(visibleRows(page)).toHaveCount(1);
+  await expect(visibleRows(page)).toContainText("linux-headers");
+  await expect(page.locator("[data-summary]")).toHaveText(`1 of ${entryCount}`);
+});
+
 test("Esc clears the filter and restores the summary", async ({ page }) => {
   await page.goto(folderPath);
   const summary = page.locator("[data-summary]");

@@ -10,7 +10,7 @@ describe("setupBlocks", () => {
         caption: "append to /etc/pacman.conf",
         code: "[wxx9248]\nSigLevel = Optional TrustAll\nServer = https://repo.wxx9248.top/archlinux/$arch"
       },
-      { caption: "then", code: "sudo pacman -Sy linux" }
+      { caption: "then", code: "sudo pacman -Syu linux" }
     ]);
   });
 

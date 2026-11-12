@@ -34,3 +34,25 @@ test("copy puts the snippet on the clipboard and says so", async ({
     pacmanConf?.code
   );
 });
+
+test("each copy button is named after its command", async ({ page }) => {
+  await blockExternal(page);
+  await page.goto("/archlinux/");
+  await expect(
+    page.getByRole("button", { name: "Copy: [wxx9248]" })
+  ).toHaveCount(1);
+  await expect(
+    page.getByRole("button", { name: "Copy: sudo pacman -Syu linux" })
+  ).toHaveCount(1);
+  await page.goto("/debian/");
+  await expect(
+    page.getByRole("button", {
+      name: "Copy: echo 'deb [trusted=yes]"
+    })
+  ).toHaveCount(1);
+  await expect(
+    page.getByRole("button", {
+      name: "Copy: sudo apt update && sudo apt install"
+    })
+  ).toHaveCount(1);
+});

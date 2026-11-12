@@ -17,7 +17,7 @@ export function setupBlocks(
         caption: "append to /etc/pacman.conf",
         code: `[${repo.database}]\nSigLevel = Optional TrustAll\nServer = ${siteUrl}/${name}/$arch`
       },
-      { caption: "then", code: `sudo pacman -Sy ${packages}` }
+      { caption: "then", code: `sudo pacman -Syu ${packages}` }
     ];
   }
   return [
