@@ -9,28 +9,15 @@ updates:
       interval: weekly
     cooldown:
       default-days: 1
-    commit-message:
-      prefix: "Dependency Updates"
+    ignore:
+      # Its major version follows Node's, set in devEngines.
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
+      # @astrojs/check and typescript-eslint don't support TypeScript 7 yet.
+      - dependency-name: typescript
+        update-types: ["version-update:semver-major"]
     groups:
       npm:
-        update-types: [minor, patch]
-    ignore:
-      # vue-tsc and typescript-eslint still need TypeScript's JS compiler API
-      # (typescript/lib/tsc), which TypeScript 7 (the native port) no longer
-      # ships.
-      - dependency-name: typescript
-        update-types: [version-update:semver-major]
-
-  - package-ecosystem: pip
-    directory: /repo/archlinux/index/
-    schedule:
-      interval: weekly
-    cooldown:
-      default-days: 1
-    commit-message:
-      prefix: "Dependency Updates"
-    groups:
-      pip:
         update-types: [minor, patch]
 
   - package-ecosystem: github-actions
@@ -39,8 +26,6 @@ updates:
       interval: weekly
     cooldown:
       default-days: 1
-    commit-message:
-      prefix: "GitHub Actions Updates"
     groups:
       github-actions:
         update-types: [minor, patch]

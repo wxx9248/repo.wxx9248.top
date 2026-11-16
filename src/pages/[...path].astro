@@ -1,0 +1,74 @@
+---
+import Base from "@/layouts/Base.astro";
+import type { Folder } from "@/lib/tree/types";
+import Intro from "@/components/Intro.astro";
+import Listing from "@/components/Listing.astro";
+import PromptLine from "@/components/PromptLine.astro";
+import SetupPanel from "@/components/SetupPanel.astro";
+import StatusBar from "@/components/StatusBar.astro";
+import { findRepository } from "@/config/repos";
+import { folderUrl } from "@/lib/links";
+import { resolveRepoDir } from "@/lib/repo-dir";
+import { site } from "@/config/site";
+import { summarize } from "@/lib/tree/summary";
+import { walk } from "@/lib/tree/walk";
+
+interface Props {
+  folder: Folder;
+}
+
+const ROOT_DEPTH = 0;
+const REPO_DEPTH = 1;
+
+export async function getStaticPaths() {
+  const folders = await walk(resolveRepoDir());
+  return folders.map((folder) => ({
+    params: {
+      // The root route has no path segments, which Astro spells as undefined
+      // eslint-disable-next-line no-undefined
+      path: folder.path.join("/") || undefined
+    },
+    props: { folder }
+  }));
+}
+
+const { folder } = Astro.props;
+const { path } = folder;
+const isRoot = path.length === ROOT_DEPTH;
+const [top = ""] = path;
+const repo = path.length === REPO_DEPTH ? findRepository(top) : null;
+const display = `/${path.join("/")}/`;
+
+function describe(): string {
+  if (isRoot) {
+    return site.intro;
+  }
+  return repo ? repo.description : `Files in ${display}`;
+}
+---
+
+<Base
+  canonicalPath={folderUrl(path)}
+  description={describe()}
+  title={isRoot ? site.title : `${display} · ${site.title}`}
+>
+  <PromptLine path={path}>ls -lh</PromptLine>
+  <main>
+    {isRoot ? <Intro /> : <h1 class="visually-hidden">{display}</h1>}
+    {repo && <SetupPanel repo={repo} />}
+    <Listing folder={folder} isRoot={isRoot} />
+  </main>
+  <StatusBar summary={summarize(folder.entries)} />
+</Base>
+
+<style>
+  main {
+    display: flex;
+    flex-direction: column;
+    gap: var(--page-gap);
+    width: 100%;
+    max-width: var(--page-max);
+    margin: 0 auto;
+    padding: var(--page-padding);
+  }
+</style>

@@ -1,0 +1,5 @@
+Package: fan-controllerd
+Version: 1.0.0
+Architecture: arm64
+Filename: pool/main/fan-controllerd_1.0.0_arm64.deb
+Description: Fixture package

@@ -1,0 +1,86 @@
+---
+import { folderUrl } from "@/lib/links";
+import { site } from "@/config/site";
+
+interface Props {
+  // Folder names from the site root; empty at the root
+  path: string[];
+}
+
+const { path } = Astro.props;
+
+const ROOT = 0;
+const NEXT = 1;
+// Each segment links to the folder it names
+const crumbs = path.map((segment, index) => ({
+  href: folderUrl(path.slice(ROOT, index + NEXT)),
+  segment
+}));
+---
+
+<header class="prompt-line">
+  <div class="line">
+    <span class="user">visitor@{site.host}</span>
+    <span class="muted">:</span>
+    <nav aria-label="Path" class="path">
+      <a href="/">/</a>
+      {crumbs.map(({ href, segment }) => (
+        <>
+          <a href={href}>{segment}</a>
+          <span class="muted">/</span>
+        </>
+      ))}
+    </nav>
+    <span class="muted dollar">$</span>
+    <span class="command">
+      <slot />
+    </span>
+  </div>
+</header>
+
+<style>
+  .prompt-line {
+    padding: 14px var(--page-side);
+    overflow: hidden;
+    border-bottom: var(--rule);
+    white-space: nowrap;
+  }
+
+  .line {
+    display: flex;
+    min-width: 0;
+  }
+
+  .user {
+    color: var(--color-accent);
+  }
+
+  .path {
+    display: flex;
+    flex: none;
+  }
+
+  /* Path segments are links in the prompt's highlight color */
+  .path a {
+    color: var(--color-text-highlight);
+  }
+
+  @media (hover: hover) {
+    .path a:hover {
+      color: var(--color-link-hover);
+    }
+  }
+
+  .muted {
+    color: var(--color-text-muted);
+  }
+
+  .dollar {
+    margin: 0 1ch;
+  }
+
+  .command {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+</style>

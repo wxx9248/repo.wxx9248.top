@@ -1,3 +1,7 @@
+# Install scripts pnpm may run. esbuild (pulled in by Vite and tsx) ships its
+# binary as a platform package, so its install script isn't needed.
 allowBuilds:
-  "@parcel/watcher": true
-  esbuild: true
+  esbuild: false
+# The user's own packages, which can be used as soon as they're published.
+minimumReleaseAgeExclude:
+  - "@wxx9248/*"

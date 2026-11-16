@@ -1,0 +1,42 @@
+---
+import "@/styles/tokens.css";
+import "@/styles/base.css";
+import { initTheme, themeStorageKey } from "@/scripts/theme";
+import { site } from "@/config/site";
+
+interface Props {
+  // Path of this page, with the trailing slash, for the canonical URL
+  canonicalPath: string;
+  description: string;
+  noindex?: boolean;
+  title: string;
+}
+
+const { canonicalPath, description, noindex = false, title } = Astro.props;
+
+// "js" lets the stylesheet show what only works with scripts, such as copy buttons
+const headScript = `document.documentElement.classList.add("js");(${initTheme.toString()})(${JSON.stringify(themeStorageKey)});`;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="color-scheme" content="light dark" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="canonical" href={new URL(canonicalPath, site.url).href} />
+    <script is:inline set:html={headScript} />
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

@@ -1,0 +1,39 @@
+---
+interface Props {
+  // Lets the parent style the button: the rest carries Astro's scope attribute
+  class?: string;
+}
+
+const { class: className, ...rest } = Astro.props;
+---
+
+<button
+  type="button"
+  class={className}
+  aria-label="Toggle theme"
+  data-theme-toggle
+  {...rest}
+>
+  <svg
+    aria-hidden="true"
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    <circle cx="12" cy="12" r="9"></circle>
+    <path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"></path>
+  </svg>
+</button>
+
+<script>
+  import { toggleTheme } from "@/scripts/theme";
+
+  for (const button of document.querySelectorAll("[data-theme-toggle]")) {
+    button.addEventListener("click", () => toggleTheme());
+  }
+</script>
