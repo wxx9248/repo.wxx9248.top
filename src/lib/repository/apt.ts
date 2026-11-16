@@ -1,9 +1,23 @@
-import { type Run, isMissingCommand } from "@/lib/stage/run";
+import {
+  type Drop,
+  type ReleaseSource,
+  Repository,
+  type RepositoryOptions,
+  type SetupBlock,
+  type StageContext
+} from "@/lib/repository/repository";
+import { type Run, runTool } from "@/lib/stage/run";
 import { basename, dirname, join } from "node:path";
 import { mkdir, readdir, writeFile } from "node:fs/promises";
-import type { AptRepo } from "@/config/repos";
 import { createHash } from "node:crypto";
 import { gzipSync } from "node:zlib";
+
+// The fields of an apt suite that its Release file names
+export interface AptSuite {
+  component: string;
+  origin: string;
+  suite: string;
+}
 
 export interface IndexedFile {
   path: string;
@@ -12,6 +26,11 @@ export interface IndexedFile {
 }
 
 const debSuffix = ".deb";
+// Packages are downloaded here, and dpkg-scanpackages scans it, so both use one name
+const poolDir = "pool";
+const distsDir = "dists";
+// Architecture-independent packages, listed under every real architecture
+const anyArchitecture = "all";
 const gzipLevel = 9;
 
 // Package files are named <name>_<version>_<architecture>.deb
@@ -24,7 +43,7 @@ export function debArchitecture(fileName: string): string {
 }
 
 export function releaseFile(
-  repo: Pick<AptRepo, "component" | "origin" | "suite">,
+  repo: AptSuite,
   architectures: string[],
   date: Date,
   files: IndexedFile[]
@@ -59,45 +78,39 @@ async function scanPackages(
   architecture: string,
   run: Run
 ): Promise<string> {
-  try {
-    return await run("dpkg-scanpackages", ["--arch", architecture, "pool"], {
-      cwd: root
-    });
-  } catch (error) {
-    if (isMissingCommand(error)) {
-      throw new Error(
-        "dpkg-scanpackages was not found. Install dpkg-dev to index apt packages",
-        { cause: error }
-      );
-    }
-    throw error;
-  }
+  return await runTool(
+    run,
+    "dpkg-scanpackages",
+    ["--arch", architecture, poolDir],
+    { cwd: root, missing: "Install dpkg-dev to index apt packages" }
+  );
 }
 
 async function stagedArchitectures(root: string): Promise<string[]> {
-  const names = await readdir(join(root, "pool"), { recursive: true });
+  const names = await readdir(join(root, poolDir), { recursive: true });
   const architectures = new Set(
     names
       .map((name) => basename(name))
       .filter((name) => name.endsWith(debSuffix))
       .map(debArchitecture)
   );
-  architectures.delete("all");
+  architectures.delete(anyArchitecture);
   if (!architectures.size) {
     throw new Error(
-      `No architecture-specific .deb package found under ${join(root, "pool")}`
+      `No architecture-specific .deb package found under ${join(root, poolDir)}`
     );
   }
   return [...architectures].sort();
 }
 
+// Writes dists/<suite>/ for the packages under pool/
 export async function indexApt(
   root: string,
-  repo: AptRepo,
-  options: { now: Date; run: Run }
+  repo: AptSuite,
+  options: Pick<StageContext, "now" | "run">
 ): Promise<void> {
   const architectures = await stagedArchitectures(root);
-  const suiteDirectory = join(root, "dists", repo.suite);
+  const suiteDirectory = join(root, distsDir, repo.suite);
   const files: IndexedFile[] = [];
 
   for (const architecture of architectures) {
@@ -119,4 +132,60 @@ export async function indexApt(
     join(suiteDirectory, "Release"),
     releaseFile(repo, architectures, options.now, files)
   );
+}
+
+export interface AptOptions extends RepositoryOptions, AptSuite {
+  sources: readonly ReleaseSource[];
+  // File name under /etc/apt/sources.list.d/
+  sourcesFile: string;
+}
+
+// A flat-pool apt repository with one suite and one component
+export class AptRepository extends Repository implements AptSuite {
+  readonly component: string;
+  readonly origin: string;
+  readonly sourcesFile: string;
+  readonly suite: string;
+  protected readonly manager = "apt";
+  readonly #sources: readonly ReleaseSource[];
+
+  constructor({
+    component,
+    origin,
+    sources,
+    sourcesFile,
+    suite,
+    ...options
+  }: AptOptions) {
+    super(options);
+    this.component = component;
+    this.origin = origin;
+    this.#sources = sources;
+    this.sourcesFile = sourcesFile;
+    this.suite = suite;
+  }
+
+  protected drops(): Drop[] {
+    return [{ path: [poolDir, this.component], sources: this.#sources }];
+  }
+
+  protected async index(
+    directory: string,
+    context: StageContext
+  ): Promise<void> {
+    await indexApt(directory, this, context);
+  }
+
+  protected setupBlocks(url: string): SetupBlock[] {
+    return [
+      {
+        caption: "add the source",
+        code: `echo 'deb [trusted=yes] ${url} ${this.suite} ${this.component}' | sudo tee /etc/apt/sources.list.d/${this.sourcesFile}`
+      },
+      {
+        caption: "then",
+        code: `sudo apt update && sudo apt install ${this.install.join(" ")}`
+      }
+    ];
+  }
 }

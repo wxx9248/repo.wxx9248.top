@@ -1,6 +1,11 @@
-import { compareEntries, sortEntries } from "@/lib/tree/sort";
+import { type Entry, isEntryKind } from "@/lib/tree/types";
+import {
+  compareEntries,
+  defaultDirection,
+  isSortKey,
+  sortEntries
+} from "@/lib/tree/sort";
 import { describe, expect, it } from "vitest";
-import type { Entry } from "@/lib/tree/types";
 
 function entry(overrides: Partial<Entry> & Pick<Entry, "name">): Entry {
   return { kind: "file", mtimeMs: 0, size: 0, ...overrides };
@@ -132,5 +137,22 @@ describe("compareEntries", () => {
   it("returns zero for identical entries", () => {
     const item = entry({ name: "same" });
     expect(compareEntries(item, item, "name", "ascending")).toBe(0);
+  });
+});
+
+describe("isSortKey and isEntryKind", () => {
+  it("accept the known names only", () => {
+    expect(["mtime", "name", "size"].every(isSortKey)).toBe(true);
+    expect(isSortKey("kind")).toBe(false);
+    expect(["file", "folder", "symlink"].every(isEntryKind)).toBe(true);
+    expect(isEntryKind("dir")).toBe(false);
+  });
+});
+
+describe("defaultDirection", () => {
+  it("starts names A to Z, and sizes and times largest and newest first", () => {
+    expect(defaultDirection("name")).toBe("ascending");
+    expect(defaultDirection("size")).toBe("descending");
+    expect(defaultDirection("mtime")).toBe("descending");
   });
 });

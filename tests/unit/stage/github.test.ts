@@ -1,8 +1,4 @@
-import {
-  type Release,
-  fetchLatestRelease,
-  selectAssets
-} from "@/lib/stage/github";
+import { GitHubClient, type Release, selectAssets } from "@/lib/stage/github";
 import { describe, expect, it } from "vitest";
 import { fakeFetch, jsonResponse } from "@tests/unit/stage/fake-fetch";
 
@@ -37,11 +33,11 @@ const apiRelease = {
 };
 /* eslint-enable camelcase */
 
-describe("fetchLatestRelease", () => {
+describe("GitHubClient.latestRelease", () => {
   it("maps the latest release", async () => {
     const { fetch } = fakeFetch({ [apiUrl]: () => jsonResponse(apiRelease) });
 
-    const release = await fetchLatestRelease(repo, { fetch });
+    const release = await new GitHubClient({ fetch }).latestRelease(repo);
 
     expect(release).toEqual({
       assets: [
@@ -66,12 +62,12 @@ describe("fetchLatestRelease", () => {
 
   it("sends the API headers, and the token only when given", async () => {
     const anonymous = fakeFetch({ [apiUrl]: () => jsonResponse(apiRelease) });
-    await fetchLatestRelease(repo, { fetch: anonymous.fetch });
+    await new GitHubClient({ fetch: anonymous.fetch }).latestRelease(repo);
     const authorised = fakeFetch({ [apiUrl]: () => jsonResponse(apiRelease) });
-    await fetchLatestRelease(repo, {
+    await new GitHubClient({
       fetch: authorised.fetch,
       token: "s3cret"
-    });
+    }).latestRelease(repo);
 
     const [plain] = anonymous.requests;
     const [withToken] = authorised.requests;
@@ -86,7 +82,7 @@ describe("fetchLatestRelease", () => {
       [apiUrl]: () => jsonResponse({ message: "rate limited" }, 403)
     });
 
-    const failure = fetchLatestRelease(repo, { fetch });
+    const failure = new GitHubClient({ fetch }).latestRelease(repo);
 
     await expect(failure).rejects.toThrow(repo);
     await expect(failure).rejects.toThrow("403");
@@ -97,7 +93,7 @@ describe("fetchLatestRelease", () => {
       [apiUrl]: () => jsonResponse({ message: "Not Found" }, 404)
     });
 
-    const failure = fetchLatestRelease(repo, { fetch });
+    const failure = new GitHubClient({ fetch }).latestRelease(repo);
 
     await expect(failure).rejects.toThrow(`${repo} has no release`);
   });

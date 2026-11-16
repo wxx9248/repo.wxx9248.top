@@ -1,6 +1,5 @@
 import { blockExternal, expect } from "./helpers";
-import { repos } from "@/config/repos";
-import { setupBlocks } from "@/lib/setup/snippets";
+import { findRepository } from "@/config/repos";
 import { site } from "@/config/site";
 import { test } from "@playwright/test";
 
@@ -27,7 +26,8 @@ test("copy puts the snippet on the clipboard and says so", async ({
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);
   await blockExternal(page);
   await page.goto("/archlinux/");
-  const [pacmanConf] = setupBlocks("archlinux", repos.archlinux, site.url);
+  const [pacmanConf] =
+    findRepository("archlinux")?.setup(site.url).blocks ?? [];
   await page.locator("button[data-copy]").first().click();
   await expect(page.locator("[data-message]")).toContainText("copied");
   expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(

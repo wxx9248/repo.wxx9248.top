@@ -1,22 +1,25 @@
-import { repos } from "@/config/repos";
+import { GitHubClient } from "@/lib/stage/github";
+import { ReleaseDownloader } from "@/lib/stage/releases";
+import { project } from "@/config/project";
+import { repositories } from "@/config/repos";
 import { resolve } from "node:path";
 import { run } from "@/lib/stage/run";
+import { runCli } from "@/lib/cli";
 import { stage } from "@/lib/stage/stage";
 
-try {
+// The composition root: the only place that picks real implementations
+await runCli(async () => {
   // Both are missing only on Windows, where docker --user has no meaning
   if (!process.getuid || !process.getgid) {
-    throw new Error("pnpm stage:repo needs a POSIX system");
+    throw new Error(`${project.stageCommand} needs a POSIX system`);
   }
-  await stage(resolve("staging"), repos, {
-    gid: process.getgid(),
-    log: (message) => console.log(message),
+  const github = new GitHubClient({ token: process.env.GITHUB_TOKEN });
+  await stage(resolve(project.stagingDir), repositories, {
+    downloader: new ReleaseDownloader(github, {
+      log: (path) => console.log(path)
+    }),
     now: new Date(),
     run,
-    token: process.env.GITHUB_TOKEN,
-    uid: process.getuid()
+    user: { gid: process.getgid(), uid: process.getuid() }
   });
-} catch (error) {
-  console.error(error instanceof Error ? error.message : error);
-  process.exitCode = 1;
-}
+});

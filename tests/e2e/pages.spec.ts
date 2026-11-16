@@ -2,7 +2,7 @@ import { type Page, test } from "@playwright/test";
 import { blockExternal, expect } from "./helpers";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
-import { repos } from "@/config/repos";
+import { repositories } from "@/config/repos";
 
 const listingLinks = (page: Page): Promise<string[]> =>
   page
@@ -106,8 +106,8 @@ test("root shows each repo's description", async ({ page }) => {
   await expect(page.locator("[data-listing] thead th").nth(1)).toHaveText(
     "Description"
   );
-  for (const [name, repo] of Object.entries(repos)) {
-    const row = page.locator(`[data-entry][data-name="${name}"]`);
+  for (const repo of repositories) {
+    const row = page.locator(`[data-entry][data-name="${repo.folder}"]`);
     await expect(row).toContainText(repo.description);
   }
 });

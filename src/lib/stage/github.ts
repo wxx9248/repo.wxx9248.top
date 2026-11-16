@@ -26,33 +26,56 @@ interface ApiRelease {
   html_url: string;
 }
 
+const apiBase = "https://api.github.com";
+// The REST API version these response shapes were written against
+const apiVersion = "2022-11-28";
 const notFound = 404;
 
-export async function fetchLatestRelease(
-  github: string,
-  options: { fetch?: Fetch; token?: string }
-): Promise<Release> {
-  const fetchImpl = options.fetch ?? fetch;
-  const headers: Record<string, string> = {
-    "Accept": "application/vnd.github+json",
-    "X-GitHub-Api-Version": "2022-11-28"
-  };
-  if (options.token) {
-    headers.Authorization = `Bearer ${options.token}`;
+export interface GitHubClientOptions {
+  fetch?: Fetch;
+  // Raises the API rate limit; anonymous requests work too
+  token?: string;
+}
+
+// Reads releases through the GitHub REST API
+export class GitHubClient {
+  readonly #fetch: Fetch;
+  readonly #token: string | undefined;
+
+  constructor(options: GitHubClientOptions = {}) {
+    this.#fetch = options.fetch ?? fetch;
+    this.#token = options.token;
   }
-  const response = await fetchImpl(
-    `https://api.github.com/repos/${github}/releases/latest`,
-    { headers }
-  );
-  if (response.status === notFound) {
-    throw new Error(`${github} has no release`);
-  }
-  if (!response.ok) {
-    throw new Error(
-      `GitHub API request for ${github} failed with status ${response.status}`
+
+  async latestRelease(github: string): Promise<Release> {
+    const response = await this.#fetch(
+      `${apiBase}/repos/${github}/releases/latest`,
+      { headers: this.#headers() }
     );
+    if (response.status === notFound) {
+      throw new Error(`${github} has no release`);
+    }
+    if (!response.ok) {
+      throw new Error(
+        `GitHub API request for ${github} failed with status ${response.status}`
+      );
+    }
+    return toRelease((await response.json()) as ApiRelease);
   }
-  const release = (await response.json()) as ApiRelease;
+
+  #headers(): Record<string, string> {
+    const headers: Record<string, string> = {
+      "Accept": "application/vnd.github+json",
+      "X-GitHub-Api-Version": apiVersion
+    };
+    if (this.#token) {
+      headers.Authorization = `Bearer ${this.#token}`;
+    }
+    return headers;
+  }
+}
+
+function toRelease(release: ApiRelease): Release {
   return {
     assets: release.assets.map((asset) => ({
       digest: asset.digest,

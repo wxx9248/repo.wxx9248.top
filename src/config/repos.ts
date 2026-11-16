@@ -1,57 +1,46 @@
-export interface ReleaseSource {
-  asset: RegExp;
-  // Release owner and repository, as "<owner>/<repo>"
-  github: string;
-}
+import { AptRepository } from "@/lib/repository/apt";
+import { PacmanRepository } from "@/lib/repository/pacman";
+import type { Repository } from "@/lib/repository/repository";
+import { site } from "@/config/site";
 
-export interface PacmanRepo {
-  kind: "pacman";
-  description: string;
-  database: string;
-  install: string[];
-  architectures: Record<string, ReleaseSource[]>;
-}
+// The name package managers know these repositories by
+const label = site.owner;
 
-export interface AptRepo {
-  kind: "apt";
-  description: string;
-  origin: string;
-  suite: string;
-  component: string;
-  sourcesFile: string;
-  install: string[];
-  sources: ReleaseSource[];
-}
-
-export type Repo = AptRepo | PacmanRepo;
-
-// Keys are the top-level folder names under the site root
-export const repos: Record<string, Repo> = {
-  archlinux: {
+// Each repository is a top-level folder under the site root
+export const repositories: readonly Repository[] = [
+  new PacmanRepository({
     architectures: {
       // Pacman architecture names are fixed by the distribution
       // eslint-disable-next-line camelcase
       x86_64: [
         {
           asset: /\.pkg\.tar\.zst$/u,
-          github: "wxx9248/Arch-Linux-Kernel-Build"
+          github: `${site.owner}/Arch-Linux-Kernel-Build`
         }
       ]
     },
-    database: "wxx9248",
+    database: label,
     description:
       "pacman · custom Arch Linux kernel (linux, linux-headers, linux-docs)",
-    install: ["linux"],
-    kind: "pacman"
-  },
-  debian: {
+    folder: "archlinux",
+    install: ["linux"]
+  }),
+  new AptRepository({
     component: "main",
     description: "apt · fan-controllerd, the PC fan controller daemon",
+    folder: "debian",
     install: ["fan-controllerd"],
-    kind: "apt",
-    origin: "wxx9248",
-    sources: [{ asset: /\.deb$/u, github: "wxx9248/PC-Fan-Controller" }],
-    sourcesFile: "wxx9248.list",
+    origin: label,
+    sources: [{ asset: /\.deb$/u, github: `${site.owner}/PC-Fan-Controller` }],
+    sourcesFile: `${label}.list`,
     suite: "trixie"
-  }
-};
+  })
+];
+
+const byFolder = new Map(
+  repositories.map((repository) => [repository.folder, repository])
+);
+
+export function findRepository(folder: string): Repository | null {
+  return byFolder.get(folder) ?? null;
+}

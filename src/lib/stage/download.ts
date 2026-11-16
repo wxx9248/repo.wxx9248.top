@@ -7,7 +7,9 @@ import { createWriteStream } from "node:fs";
 import { join } from "node:path";
 import { pipeline } from "node:stream/promises";
 
-const digestPrefix = "sha256:";
+// GitHub reports asset digests as "sha256:<hex>"
+const digestAlgorithm = "sha256";
+const digestPrefix = `${digestAlgorithm}:`;
 
 export async function downloadAsset(
   asset: ReleaseAsset,
@@ -28,7 +30,7 @@ export async function downloadAsset(
 
   const path = join(directory, asset.name);
   const part = `${path}.part`;
-  const hash = createHash("sha256");
+  const hash = createHash(digestAlgorithm);
   await mkdir(directory, { recursive: true });
   try {
     await pipeline(

@@ -1,7 +1,17 @@
 import type { Entry } from "@/lib/tree/types";
 
-export type SortKey = "mtime" | "name" | "size";
+export const SORT_KEYS = ["mtime", "name", "size"] as const;
+export type SortKey = (typeof SORT_KEYS)[number];
 export type SortDirection = "ascending" | "descending";
+
+export function isSortKey(value: unknown): value is SortKey {
+  return SORT_KEYS.some((key) => key === value);
+}
+
+// A column starts newest-first and largest-first, and A to Z for names
+export function defaultDirection(key: SortKey): SortDirection {
+  return key === "name" ? "ascending" : "descending";
+}
 
 type Sortable = Pick<Entry, "kind" | "mtimeMs" | "name" | "size">;
 

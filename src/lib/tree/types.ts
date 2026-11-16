@@ -1,4 +1,9 @@
-export type EntryKind = "file" | "folder" | "symlink";
+export const ENTRY_KINDS = ["file", "folder", "symlink"] as const;
+export type EntryKind = (typeof ENTRY_KINDS)[number];
+
+export function isEntryKind(value: unknown): value is EntryKind {
+  return ENTRY_KINDS.some((kind) => kind === value);
+}
 
 // Folders have size 0.
 // Symlinks carry the size and mtime of their target.

@@ -1,10 +1,14 @@
-import type { AptRepo, PacmanRepo, Repo } from "@/config/repos";
+import { type FakeRun, fakeRun } from "@tests/unit/stage/fake-run";
+import { type Fetch, GitHubClient } from "@/lib/stage/github";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { fakeFetch, jsonResponse } from "@tests/unit/stage/fake-fetch";
 import { mkdir, mkdtemp, readdir, rm, writeFile } from "node:fs/promises";
-import type { Fetch } from "@/lib/stage/github";
+import { AptRepository } from "@/lib/repository/apt";
+import { FakeRepository } from "@tests/unit/repository/fake-repository";
+import { PacmanRepository } from "@/lib/repository/pacman";
+import { ReleaseDownloader } from "@/lib/stage/releases";
+import type { StageContext } from "@/lib/repository/repository";
 import { createHash } from "node:crypto";
-import { fakeRun } from "@tests/unit/stage/fake-run";
 import { join } from "node:path";
 import { stage } from "@/lib/stage/stage";
 import { tmpdir } from "node:os";
@@ -40,7 +44,7 @@ function assetRoutes(...names: string[]): Record<string, () => Response> {
   );
 }
 
-const pacman: PacmanRepo = {
+const pacman = new PacmanRepository({
   architectures: {
     // eslint-disable-next-line camelcase
     x86_64: [
@@ -50,19 +54,19 @@ const pacman: PacmanRepo = {
   },
   database: "wxx9248",
   description: "",
-  install: [],
-  kind: "pacman"
-};
-const apt: AptRepo = {
+  folder: "archlinux",
+  install: []
+});
+const apt = new AptRepository({
   component: "main",
   description: "",
+  folder: "debian",
   install: [],
-  kind: "apt",
   origin: "wxx9248",
   sources: [{ asset: /\.deb$/u, github: "owner/fan" }],
   sourcesFile: "wxx9248.list",
   suite: "trixie"
-};
+});
 
 let root = "";
 
@@ -74,8 +78,19 @@ afterEach(async () => {
   await rm(root, { force: true, recursive: true });
 });
 
-function options(fetch: Fetch, extra: { token?: string } = {}) {
-  return { fetch, gid: 1000, now, uid: 1000, ...extra };
+function context(
+  fetch: Fetch,
+  extra: { log?: (path: string) => void; token?: string } = {}
+): StageContext & Pick<FakeRun, "calls"> {
+  const { calls, run } = fakeRun();
+  const github = new GitHubClient({ fetch, token: extra.token });
+  return {
+    calls,
+    downloader: new ReleaseDownloader(github, { fetch, log: extra.log }),
+    now,
+    run,
+    user: { gid: 1000, uid: 1000 }
+  };
 }
 
 describe("stage", () => {
@@ -90,10 +105,9 @@ describe("stage", () => {
         "fan_1_arm64.deb"
       )
     });
-    const { calls, run } = fakeRun();
-    const repos: Record<string, Repo> = { archlinux: pacman, debian: apt };
+    const staging = context(fetch);
 
-    await stage(root, repos, { ...options(fetch), run });
+    await stage(root, [pacman, apt], staging);
 
     expect(await readdir(join(root, "archlinux", "x86_64"))).toEqual([
       "extra-1-x86_64.pkg.tar.zst",
@@ -102,11 +116,11 @@ describe("stage", () => {
     expect(await readdir(join(root, "debian", "pool", "main"))).toEqual([
       "fan_1_arm64.deb"
     ]);
-    expect(calls.map((call) => call.command)).toEqual([
+    expect(staging.calls.map((call) => call.command)).toEqual([
       "docker",
       "dpkg-scanpackages"
     ]);
-    expect(calls[1]?.cwd).toBe(join(root, "debian"));
+    expect(staging.calls[1]?.cwd).toBe(join(root, "debian"));
   });
 
   it("clears the previous staging tree", async () => {
@@ -116,11 +130,23 @@ describe("stage", () => {
       [api("owner/fan")]: () => release("fan_1_arm64.deb"),
       ...assetRoutes("fan_1_arm64.deb")
     });
-    const { run } = fakeRun();
 
-    await stage(root, { debian: apt }, { ...options(fetch), run });
+    await stage(root, [apt], context(fetch));
 
     expect(await readdir(root)).toEqual(["debian"]);
+  });
+
+  it("stages each repository in order, through its own steps", async () => {
+    const one = new FakeRepository("one");
+    const two = new FakeRepository("two");
+    const { fetch } = fakeFetch({});
+
+    await stage(root, [one, two], context(fetch));
+
+    expect([...one.events, ...two.events]).toEqual([
+      `index ${join(root, "one")} ${now.toISOString()}`,
+      `index ${join(root, "two")} ${now.toISOString()}`
+    ]);
   });
 
   it("throws naming a file that two sources put in the same folder", async () => {
@@ -129,11 +155,10 @@ describe("stage", () => {
       [api("owner/extras")]: () => release("same-1-x86_64.pkg.tar.zst"),
       ...assetRoutes("same-1-x86_64.pkg.tar.zst")
     });
-    const { run } = fakeRun();
 
-    await expect(
-      stage(root, { archlinux: pacman }, { ...options(fetch), run })
-    ).rejects.toThrow("same-1-x86_64.pkg.tar.zst");
+    await expect(stage(root, [pacman], context(fetch))).rejects.toThrow(
+      "same-1-x86_64.pkg.tar.zst"
+    );
     expect(requests.map((request) => request.url)).not.toContain(
       download("same-1-x86_64.pkg.tar.zst")
     );
@@ -144,13 +169,8 @@ describe("stage", () => {
       [api("owner/fan")]: () => release("fan_1_arm64.deb"),
       ...assetRoutes("fan_1_arm64.deb")
     });
-    const { run } = fakeRun();
 
-    await stage(
-      root,
-      { debian: apt },
-      { ...options(fetch, { token: "secret" }), run }
-    );
+    await stage(root, [apt], context(fetch, { token: "secret" }));
 
     const call = requests.find((request) => request.url === api("owner/fan"));
     expect(call?.headers.get("Authorization")).toBe("Bearer secret");
@@ -161,13 +181,12 @@ describe("stage", () => {
       [api("owner/fan")]: () => release("fan_1_arm64.deb"),
       ...assetRoutes("fan_1_arm64.deb")
     });
-    const { run } = fakeRun();
     const lines: string[] = [];
 
     await stage(
       root,
-      { debian: apt },
-      { ...options(fetch), log: (line) => lines.push(line), run }
+      [apt],
+      context(fetch, { log: (line) => lines.push(line) })
     );
 
     expect(lines).toEqual([

@@ -1,3 +1,4 @@
+import { hasErrorCode } from "@/lib/errors";
 import { spawn } from "node:child_process";
 
 const success = 0;
@@ -35,5 +36,30 @@ export const run: Run = (command, args, options = {}) =>
   });
 
 export function isMissingCommand(error: unknown): boolean {
-  return error instanceof Error && "code" in error && error.code === "ENOENT";
+  return hasErrorCode(error, "ENOENT");
+}
+
+export interface ToolOptions {
+  cwd?: string;
+  // Appended to "<command> was not found." when the command is missing
+  missing: string;
+}
+
+// Runs a required tool, turning a missing command into an install hint
+export async function runTool(
+  runCommand: Run,
+  command: string,
+  args: string[],
+  options: ToolOptions
+): Promise<string> {
+  try {
+    return await runCommand(command, args, { cwd: options.cwd });
+  } catch (error) {
+    if (isMissingCommand(error)) {
+      throw new Error(`${command} was not found. ${options.missing}`, {
+        cause: error
+      });
+    }
+    throw error;
+  }
 }

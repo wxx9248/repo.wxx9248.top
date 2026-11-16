@@ -1,9 +1,6 @@
 import { assemble } from "@/lib/assemble";
-import { resolveRepoDir } from "@/config/repo-dir";
+import { project } from "@/config/project";
+import { resolveRepoDir } from "@/lib/repo-dir";
+import { runCli } from "@/lib/cli";
 
-try {
-  await assemble(resolveRepoDir(), "dist");
-} catch (error) {
-  console.error(error instanceof Error ? error.message : error);
-  process.exitCode = 1;
-}
+await runCli(() => assemble(resolveRepoDir(), project.distDir));

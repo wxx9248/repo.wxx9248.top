@@ -6,9 +6,9 @@ import Listing from "@/components/Listing.astro";
 import PromptLine from "@/components/PromptLine.astro";
 import SetupPanel from "@/components/SetupPanel.astro";
 import StatusBar from "@/components/StatusBar.astro";
+import { findRepository } from "@/config/repos";
 import { folderUrl } from "@/lib/links";
-import { repos } from "@/config/repos";
-import { resolveRepoDir } from "@/config/repo-dir";
+import { resolveRepoDir } from "@/lib/repo-dir";
 import { site } from "@/config/site";
 import { summarize } from "@/lib/tree/summary";
 import { walk } from "@/lib/tree/walk";
@@ -36,7 +36,7 @@ const { folder } = Astro.props;
 const { path } = folder;
 const isRoot = path.length === ROOT_DEPTH;
 const [top = ""] = path;
-const repo = path.length === REPO_DEPTH ? repos[top] : null;
+const repo = path.length === REPO_DEPTH ? findRepository(top) : null;
 const display = `/${path.join("/")}/`;
 
 function describe(): string {
@@ -55,7 +55,7 @@ function describe(): string {
   <PromptLine path={path}>ls -lh</PromptLine>
   <main>
     {isRoot ? <Intro /> : <h1 class="visually-hidden">{display}</h1>}
-    {repo && <SetupPanel name={top} repo={repo} />}
+    {repo && <SetupPanel repo={repo} />}
     <Listing folder={folder} isRoot={isRoot} />
   </main>
   <StatusBar summary={summarize(folder.entries)} />

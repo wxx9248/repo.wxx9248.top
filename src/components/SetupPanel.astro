@@ -1,17 +1,16 @@
 ---
-import { setupBlocks, setupNote } from "@/lib/setup/snippets";
 import Panel from "./Panel.astro";
-import type { Repo } from "@/config/repos";
+import type { Repository } from "@/lib/repository/repository";
 import { site } from "@/config/site";
 
 interface Props {
-  name: string;
-  repo: Repo;
+  repo: Repository;
 }
 
-const { name, repo } = Astro.props;
+const { repo } = Astro.props;
+const guide = repo.setup(site.url);
 // A button is named after the first line of its command, not the caption
-const blocks = setupBlocks(name, repo, site.url).map((block) => {
+const blocks = guide.blocks.map((block) => {
   const [firstLine = ""] = block.code.split("\n");
   return { ...block, firstLine };
 });
@@ -50,7 +49,7 @@ const blocks = setupBlocks(name, repo, site.url).map((block) => {
       </div>
     ))}
   </div>
-  <p class="panel-note">{setupNote(repo)}</p>
+  <p class="panel-note">{guide.note}</p>
 </Panel>
 
 <script>

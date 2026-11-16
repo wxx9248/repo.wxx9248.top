@@ -1,7 +1,11 @@
+const host = "repo.wxx9248.top";
+const owner = "wxx9248";
+
 export const site = {
-  github: "wxx9248/repo.wxx9248.top",
-  host: "repo.wxx9248.top",
-  intro: "Package repositories for things wxx9248 builds.",
-  title: "repo.wxx9248.top",
-  url: "https://repo.wxx9248.top"
+  github: `${owner}/${host}`,
+  host,
+  intro: `Package repositories for things ${owner} builds.`,
+  owner,
+  title: host,
+  url: `https://${host}`
 } as const;

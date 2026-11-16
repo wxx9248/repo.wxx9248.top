@@ -1,21 +1,21 @@
+import {
+  AptRepository,
+  type AptSuite,
+  debArchitecture,
+  indexApt,
+  releaseFile
+} from "@/lib/repository/apt";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { debArchitecture, indexApt, releaseFile } from "@/lib/stage/apt";
 import { fakeRun, missingCommand } from "@tests/unit/stage/fake-run";
 import { gunzipSync, gzipSync } from "node:zlib";
 import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
-import type { AptRepo } from "@/config/repos";
 import { createHash } from "node:crypto";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 
-const repo: AptRepo = {
+const repo: AptSuite = {
   component: "main",
-  description: "",
-  install: [],
-  kind: "apt",
   origin: "wxx9248",
-  sources: [],
-  sourcesFile: "wxx9248.list",
   suite: "trixie"
 };
 const now = new Date(Date.UTC(2026, 10, 11, 7, 36, 0));
@@ -24,6 +24,17 @@ const packages = "Package: fan-controllerd\nVersion: 1.0.0\n\n";
 function sha256(content: Buffer | string): string {
   return createHash("sha256").update(content).digest("hex");
 }
+
+let root = "";
+
+beforeEach(async () => {
+  root = await mkdtemp(join(tmpdir(), "apt-test-"));
+  await mkdir(join(root, "pool", "main"), { recursive: true });
+});
+
+afterEach(async () => {
+  await rm(root, { force: true, recursive: true });
+});
 
 describe("debArchitecture", () => {
   it("reads the architecture from the file name", () => {
@@ -58,17 +69,6 @@ describe("releaseFile", () => {
 });
 
 describe("indexApt", () => {
-  let root = "";
-
-  beforeEach(async () => {
-    root = await mkdtemp(join(tmpdir(), "apt-test-"));
-    await mkdir(join(root, "pool", "main"), { recursive: true });
-  });
-
-  afterEach(async () => {
-    await rm(root, { force: true, recursive: true });
-  });
-
   async function stageDebs(...names: string[]): Promise<void> {
     for (const name of names) {
       await writeFile(join(root, "pool", "main", name), "");
@@ -169,5 +169,57 @@ describe("indexApt", () => {
     await expect(indexApt(root, repo, { now, run })).rejects.toThrow(
       "dpkg-dev"
     );
+  });
+});
+
+describe("AptRepository", () => {
+  const repository = new AptRepository({
+    ...repo,
+    description: "",
+    folder: "deb",
+    install: ["fan-controllerd", "extra"],
+    sources: [{ asset: /\.deb$/u, github: "owner/fan" }],
+    sourcesFile: "wxx9248.list"
+  });
+
+  it("adds an apt source at the folder's URL, then installs the packages", () => {
+    expect(repository.setup("https://example.org").blocks).toEqual([
+      {
+        caption: "add the source",
+        code: "echo 'deb [trusted=yes] https://example.org/deb trixie main' | sudo tee /etc/apt/sources.list.d/wxx9248.list"
+      },
+      {
+        caption: "then",
+        code: "sudo apt update && sudo apt install fan-controllerd extra"
+      }
+    ]);
+  });
+
+  it("names apt in the note", () => {
+    expect(repository.setup("https://example.org").note).toBe(
+      "Packages are unsigned; apt trusts them over HTTPS alone. Only the latest release of each package is kept."
+    );
+  });
+
+  it("downloads into pool/<component> and indexes the repository folder", async () => {
+    await mkdir(join(root, "deb", "pool", "main"), { recursive: true });
+    await writeFile(join(root, "deb", "pool", "main", "fan_1_arm64.deb"), "");
+    const { calls, run } = fakeRun({ "dpkg-scanpackages": packages });
+    const downloads: string[] = [];
+
+    await repository.stage(root, {
+      downloader: {
+        download: (folder) => {
+          downloads.push(folder);
+          return Promise.resolve();
+        }
+      },
+      now,
+      run,
+      user: { gid: 1000, uid: 1000 }
+    });
+
+    expect(downloads).toEqual([join(root, "deb", "pool", "main")]);
+    expect(calls[0]?.cwd).toBe(join(root, "deb"));
   });
 });

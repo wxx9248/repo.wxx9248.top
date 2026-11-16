@@ -1,12 +1,13 @@
 import { cp, lstat, readdir } from "node:fs/promises";
 import type { Stats } from "node:fs";
+import { hasErrorCode } from "@/lib/errors";
 import { join } from "node:path";
 
 async function statOrNull(path: string): Promise<Stats | null> {
   try {
     return await lstat(path);
   } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === "ENOENT") {
+    if (hasErrorCode(error, "ENOENT")) {
       return null;
     }
     throw error;

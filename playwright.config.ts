@@ -1,4 +1,5 @@
 import { defineConfig } from "@playwright/test";
+import { project } from "@/config/project";
 
 // Off Astro's default 4321, so a dev server running there is never reused
 const port = 4323;
@@ -23,7 +24,7 @@ export default defineConfig({
   webServer: {
     // The flag keeps the server in the foreground even under an agent
     command: `pnpm exec astro build && pnpm exec tsx scripts/assemble.ts && pnpm exec astro preview --ignore-lock --port ${port}`,
-    env: { REPO_DIR: "tests/fixtures/repo" },
+    env: { [project.repoDirVariable]: project.fixtureDir },
     port,
     reuseExistingServer: !process.env.CI
   }

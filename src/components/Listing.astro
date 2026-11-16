@@ -1,9 +1,9 @@
 ---
 import type { Folder } from "@/lib/tree/types";
 import { entryHref } from "@/lib/links";
+import { findRepository } from "@/config/repos";
 import { formatSize } from "@/lib/format/size";
 import { formatTime } from "@/lib/format/time";
-import { repos } from "@/config/repos";
 import { sortEntries } from "@/lib/tree/sort";
 
 interface Props {
@@ -15,6 +15,7 @@ const { folder, isRoot } = Astro.props;
 const entries = sortEntries(folder.entries);
 // At the root, the second column describes each repository
 const secondColumn = isRoot ? "Description" : "Size";
+const describe = (folder: string) => findRepository(folder)?.description;
 ---
 
 <div class="listing">
@@ -78,7 +79,7 @@ const secondColumn = isRoot ? "Description" : "Size";
                 )}
               </td>
               {isRoot ? (
-                <td class="description">{repos[entry.name]?.description}</td>
+                <td class="description">{describe(entry.name)}</td>
               ) : (
                 <td
                   class="num"

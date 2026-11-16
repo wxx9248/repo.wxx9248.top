@@ -1,9 +1,11 @@
+import { type EntryKind, isEntryKind } from "@/lib/tree/types";
 import {
   type SortDirection,
   type SortKey,
-  compareEntries
+  compareEntries,
+  defaultDirection,
+  isSortKey
 } from "@/lib/tree/sort";
-import type { EntryKind } from "@/lib/tree/types";
 import { matchesFilter } from "@/lib/tree/filter";
 import { showMessage } from "@/scripts/message";
 
@@ -18,21 +20,6 @@ interface Row {
 interface SortState {
   direction: SortDirection;
   key: SortKey;
-}
-
-const sortKeys: readonly string[] = ["mtime", "name", "size"];
-
-function isSortKey(value: string | undefined): value is SortKey {
-  return sortKeys.includes(value ?? "");
-}
-
-function isEntryKind(value: string | undefined): value is EntryKind {
-  return value === "file" || value === "folder" || value === "symlink";
-}
-
-// A column starts newest-first and largest-first, and A to Z for names
-function defaultDirection(key: SortKey): SortDirection {
-  return key === "name" ? "ascending" : "descending";
 }
 
 function readRows(table: HTMLTableElement): Row[] {

@@ -27,17 +27,27 @@ Set `REPO_DIR=tests/fixtures/repo` to build and test against the sample reposito
 
 ## Adding a package source
 
-A repository's packages come from the GitHub releases listed in
-[`src/config/repos.ts`](src/config/repos.ts). Add an entry to the repository's
-`architectures.<arch>` list (pacman) or `sources` list (apt):
+Each repository is an entry in
+[`src/config/repos.ts`](src/config/repos.ts), and its packages come from the
+GitHub releases it lists. Add a source to the repository's
+`architectures.<arch>` list (pacman) or its `sources` list (apt):
 
 ```ts
 { asset: /<pattern>/u, github: "<owner>/<repo>" }
 ```
 
-`asset` matches the release asset names to take, and `github` is the release's
-owner and repository.
+`asset` matches the names of the release assets to take, and `github` is the
+release's owner and repository.
 
 The source repository's release workflow must also send a `repository_dispatch`
 to this repository, so that [`publish.yml`](.github/workflows/publish.yml) runs
 when a release is published.
+
+## Adding a repository kind
+
+A package format is a subclass of `Repository` in
+[`src/lib/repository/`](src/lib/repository/repository.ts). The subclass names
+its download folders (`drops`), builds the index (`index`) and writes the
+setup snippets (`setupBlocks`). Staging and the setup panel call only the base
+class, so a new format needs the subclass and an entry in `repos.ts`, and
+nothing else.
